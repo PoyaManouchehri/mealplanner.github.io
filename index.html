@@ -434,7 +434,9 @@ ul.plain li b{margin-left:auto;font-weight:500;color:var(--muted);font-size:12px
    numbers on the board always match the docket.
    ============================================================ */
 
-const TARGETS = { breakfast:350, snack1:175, lunch:400, dinner:550, snack2:175 };
+/* Slot budgets sum to the daily target. Breakfast carries the daily flat white
+   (120 cal), which is why it is the largest slot after dinner. */
+const TARGETS = { breakfast:470, snack1:145, lunch:392, dinner:525, snack2:115 };  // sums to 1650
 const DAILY   = { cal:1650, protein:140 };
 
 const PREP = {
@@ -471,31 +473,31 @@ const MEALS = [
 /* ---------------- BREAKFAST ---------------- */
 {id:'b-oats',slot:'breakfast',name:'Overnight oats',mins:1,base:'oats',
  blurb:'Made Sunday, good for four days. Scattered across the early week rather than eaten four mornings straight, so you do not get sick of them.',
- portions:[{n:'Rolled oats',a:'40g',c:150,p:5},{n:'Protein yoghurt',a:'170g',c:110,p:18},{n:'Frozen berries',a:'60g',c:30,p:1},{n:'Chia seeds',a:'5g',c:25,p:1}]},
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Rolled oats',a:'40g',c:150,p:5},{n:'Protein yoghurt',a:'170g',c:110,p:18},{n:'Frozen berries',a:'60g',c:30,p:1},{n:'Chia seeds',a:'5g',c:25,p:1}]},
 {id:'b-eggs',slot:'breakfast',name:'Eggs on toast + yoghurt',mins:8,base:null,
  blurb:'The reliable one. Also your emergency dinner if a weeknight falls apart.',
- portions:[{n:'Eggs',a:'2 large',c:145,p:13},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Greek yoghurt',a:'100g',c:95,p:9},{n:'Wilted spinach',a:'handful',c:10,p:1}],
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Eggs',a:'2 large',c:145,p:13},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Greek yoghurt',a:'100g',c:95,p:9},{n:'Wilted spinach',a:'handful',c:10,p:1}],
  steps:['Toast on. Spinach into a dry pan with a splash of water, 1 min.','Eggs however you like them — poached keeps it lean.','Yoghurt on the side, not on the toast.'],
  buy:[{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
 {id:'b-salmon',slot:'breakfast',name:'Smoked salmon toast',mins:4,base:null,
  blurb:'Feels like a café breakfast, costs you nothing in protein.',
- portions:[{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Light cream cheese',a:'30g',c:55,p:3},{n:'Smoked salmon',a:'80g',c:110,p:18},{n:'Capers, dill, lemon',a:'to taste',c:5,p:0}],
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Light cream cheese',a:'30g',c:55,p:3},{n:'Smoked salmon',a:'80g',c:110,p:18},{n:'Capers, dill, lemon',a:'to taste',c:5,p:0}],
  buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'}]},
 {id:'b-cottage',slot:'breakfast',name:'Cottage cheese, honey + cinnamon toast',mins:3,base:null,
  blurb:'The sweet one that still carries protein. Goes better with coffee than eggs do.',
- portions:[{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Cottage cheese',a:'120g',c:110,p:14},{n:'Honey',a:'1 tsp',c:20,p:0},{n:'Cinnamon',a:'a shake',c:0,p:0}],
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Cottage cheese',a:'120g',c:110,p:14},{n:'Honey',a:'1 tsp',c:20,p:0},{n:'Cinnamon',a:'a shake',c:0,p:0}],
  buy:[{n:'Cottage cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Honey',q:'1 jar',c:'Pantry'}]},
 {id:'b-weetbix',slot:'breakfast',name:'Weetbix, milk + protein',mins:2,base:null,
  blurb:'Weetbix on its own is 4g of protein. The scoop is what makes it a breakfast rather than a snack.',
- portions:[{n:'Weetbix',a:'2 biscuits',c:130,p:4},{n:'Skim milk',a:'200ml',c:70,p:7},{n:'Protein powder',a:'25g',c:95,p:22},{n:'Banana',a:'½',c:45,p:1}],
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Weetbix',a:'2 biscuits',c:130,p:4},{n:'Skim milk',a:'200ml',c:70,p:7},{n:'Protein powder',a:'25g',c:95,p:22},{n:'Banana',a:'½',c:45,p:1}],
  buy:[{n:'Weetbix',q:'1 box',c:'Pantry'},{n:'Protein powder',q:'1 tub',c:'Pantry'},{n:'Milk',q:'2L',c:'Dairy & eggs'},{n:'Bananas',q:'1 bunch',c:'Fruit & veg'}]},
 {id:'b-pb',slot:'breakfast',name:'PB banana toast + yoghurt',mins:3,base:null,
  blurb:'Your current default, with a yoghurt bolted on to fix the protein gap.',
- portions:[{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Peanut butter',a:'15g',c:95,p:4},{n:'Banana',a:'1 medium',c:90,p:1},{n:'Protein yoghurt',a:'150g',c:100,p:16}],
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Peanut butter',a:'15g',c:95,p:4},{n:'Banana',a:'1 medium',c:90,p:1},{n:'Protein yoghurt',a:'150g',c:100,p:16}],
  buy:[{n:'Peanut butter',q:'1 jar',c:'Pantry'},{n:'Bananas',q:'1 bunch',c:'Fruit & veg'}]},
 {id:'b-pancakes',slot:'breakfast',name:'Pancakes with the family',mins:25,base:null,weekend:true,
- blurb:'This one is not a compromise, it is the point. Eat them, enjoy them, keep the rest of the day lean.',
- portions:[{n:'Pancakes',a:'3 small',c:330,p:9},{n:'Berries',a:'80g',c:40,p:1},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Maple syrup',a:'1 tbsp',c:55,p:0}],
+ blurb:'This one is not a compromise, it is the point. It is the biggest breakfast here by a distance, so keep the rest of that day lean and let it be.',
+ portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Pancakes',a:'3 small',c:330,p:9},{n:'Berries',a:'80g',c:40,p:1},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Maple syrup',a:'1 tbsp',c:55,p:0}],
  steps:['Make the batter with the four-year-old. That is half of what this meal is for.','Serve with yoghurt and berries rather than a jug of syrup on the table.','If you want to be careful, have two rather than four and a boiled egg alongside.'],
  buy:[{n:'Plain flour',q:'1 bag',c:'Pantry'},{n:'Maple syrup',q:'1 bottle',c:'Pantry'},{n:'Berries',q:'1 punnet',c:'Fruit & veg'}]},
 

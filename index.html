@@ -436,7 +436,7 @@ ul.plain li b{margin-left:auto;font-weight:500;color:var(--muted);font-size:12px
 
 /* Slot budgets sum to the daily target. Breakfast carries the daily flat white
    (120 cal), which is why it is the largest slot after dinner. */
-const TARGETS = { breakfast:470, snack1:145, lunch:392, dinner:525, snack2:115 };  // sums to 1650
+const TARGETS = { breakfast:470, snack1:145, lunch:395, dinner:525, snack2:115 };  // sums to 1650
 const DAILY   = { cal:1650, protein:140 };
 
 const PREP = {
@@ -662,6 +662,11 @@ const MEALS = [
  portions:[{n:'Red lentil dhal',a:'200g',c:225,p:13},{n:'Rice, cooked',a:'120g',c:155,p:3},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Boiled egg',a:'1',c:72,p:6},{n:'Spinach and tomato',a:'100g',c:30,p:2}],
  steps:['Onion, garlic, ginger, cumin and turmeric in the pressure cooker on Saute, 4 min.','200g red lentils and 600ml stock. Pressure cook 8 min, natural release.','Spinach stirred through at the end, lemon over the top.','Rice alongside. Yoghurt on top cools it for Milan.'],
  buy:[{n:'Red lentils',q:'500g',c:'Pantry'},{n:'Ground cumin, turmeric',q:'1 each',c:'Pantry'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
+{id:'d-frittata',slot:'dinner',name:'Roast veg frittata',mins:20,base:'veg-tray',
+ blurb:'Second use for the Sunday veg tray, and it is egg-forward rather than meat-forward, which makes it a cheap night. Cold leftovers are a good lunch the next day.',
+ portions:[{n:'Eggs',a:'4',c:290,p:25},{n:'Roast veg',a:'200g',c:90,p:4},{n:'Feta',a:'40g',c:105,p:6},{n:'Rocket salad',a:'a big handful',c:30,p:2}],
+ steps:['Oven to 190C. Eight eggs beaten with salt and pepper for the three of you.','Roast veg spread in an oven-proof pan, egg poured over, feta crumbled on top.','12 minutes in the oven until just set in the middle. It keeps cooking after it comes out.','Cut into wedges. Milan will eat it if the veg pieces are big enough to pick around.'],
+ buy:[{n:'Eggs',q:'1 dozen',c:'Dairy & eggs'},{n:'Feta',q:'1 block',c:'Dairy & eggs'},{n:'Rocket',q:'1 bag',c:'Fruit & veg'}]},
 /* ---------------- LATE SNACK ---------------- */
 {id:'n-popcorn',slot:'snack2',name:'Air-popped popcorn',mins:4,base:null,
  blurb:'Thirty grams dry makes a genuinely large bowl. Volume is what you are after at 10pm, not nutrition.',

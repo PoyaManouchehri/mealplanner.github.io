@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week Service — meal planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bench:#DCE1DC;
+  --bench-dk:#C9D0CA;
+  --docket:#FCFBF8;
+  --ink:#14262E;
+  --ink-soft:#3D555E;
+  --muted:#6C7F84;
+  --tile:#0E6E63;
+  --tile-dk:#0A4F47;
+  --saffron:#E0A008;
+  --saffron-dk:#A97705;
+  --rule:#C2CAC3;
+  --rule-soft:#E2E6E1;
+  --warn:#9C3B1B;
+  --r:3px;
+  --shadow:0 1px 0 rgba(20,38,46,.06), 0 6px 18px -10px rgba(20,38,46,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bench);
+  color:var(--ink);
+  font-family:'Archivo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;font-variant-numeric:tabular-nums}
+.cond{font-family:'Archivo Narrow','Archivo',sans-serif}
+
+/* ---------- header ---------- */
+header{
+  background:var(--ink);
+  color:#EAEFEA;
+  padding:16px 22px 0;
+  position:sticky;top:0;z-index:40;
+  box-shadow:0 8px 24px -16px rgba(0,0,0,.8);
+}
+.head-top{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+h1{
+  font-family:'Archivo Narrow',sans-serif;
+  font-weight:700;font-size:26px;letter-spacing:.14em;text-transform:uppercase;
+  margin:0;line-height:1;
+}
+h1 span{color:var(--saffron)}
+.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8FA5A4;margin:5px 0 0}
+.actions{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;padding-bottom:2px}
+button{font-family:inherit;font-size:12px;cursor:pointer;border-radius:var(--r)}
+.btn{
+  background:transparent;color:#D5DEDA;border:1px solid #3A5058;
+  padding:7px 13px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;
+  transition:background .12s,border-color .12s,color .12s;
+}
+.btn:hover{background:#1E353E;border-color:#54707A;color:#fff}
+.btn-go{background:var(--saffron);border-color:var(--saffron);color:#2A1D00}
+.btn-go:hover{background:#F2B421;border-color:#F2B421;color:#2A1D00}
+
+/* targets rail */
+.targets{
+  display:flex;gap:0;margin:14px -22px 0;padding:0 22px;
+  border-top:1px solid #24404A;
+  overflow-x:auto;
+}
+.t-cell{
+  padding:9px 18px 10px;border-right:1px solid #24404A;min-width:96px;
+}
+.t-cell:first-child{padding-left:0}
+.t-lab{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#7E9695}
+.t-val{font-size:16px;font-weight:600;color:#EAEFEA;margin-top:1px}
+.t-val em{font-style:normal;font-size:10px;color:#7E9695;margin-left:2px}
+.t-cell.total{margin-left:auto;border-right:none;text-align:right;padding-right:0}
+.t-cell.total .t-val{color:var(--saffron)}
+
+/* ---------- board ---------- */
+main{padding:20px 22px 60px}
+.board{
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;
+}
+.day{
+  background:var(--docket);border:1px solid var(--rule);border-radius:var(--r);
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);
+}
+.day-head{
+  padding:9px 10px 8px;border-bottom:1px solid var(--rule-soft);
+  display:flex;align-items:center;gap:6px;
+}
+.day-name{
+  font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.15em;text-transform:uppercase;
+}
+.kindy-tag{
+  margin-left:auto;font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;
+  border:1px solid var(--tile);color:var(--tile);padding:2px 5px;border-radius:2px;
+  background:transparent;font-weight:600;
+}
+.kindy-tag.off{border-color:var(--rule);color:#A9B4AC}
+.kindy-tag:hover{background:var(--tile);color:#fff;border-color:var(--tile)}
+.kindy-tag.off:hover{background:var(--rule-soft);color:var(--muted)}
+
+/* calorie bar */
+.bar{display:flex;height:4px;background:var(--rule-soft)}
+.bar i{display:block;height:100%}
+.bar i:nth-child(1){background:var(--tile)}
+.bar i:nth-child(2){background:var(--saffron)}
+.bar i:nth-child(3){background:var(--tile-dk)}
+.bar i:nth-child(4){background:var(--saffron-dk)}
+.bar i:nth-child(5){background:#2E555C}
+
+.slots{padding:6px;display:flex;flex-direction:column;gap:5px;flex:1}
+.slot{
+  border:1px solid var(--rule-soft);border-radius:var(--r);background:#fff;
+  padding:6px 7px 7px;position:relative;text-align:left;width:100%;
+  cursor:pointer;font-family:inherit;transition:border-color .12s,box-shadow .12s;
+}
+.slot:hover{border-color:var(--tile);box-shadow:0 0 0 2px rgba(14,110,99,.09)}
+.slot:focus-visible,.btn:focus-visible,.swap:focus-visible,.kindy-tag:focus-visible{
+  outline:2px solid var(--saffron);outline-offset:1px}
+.slot-lab{
+  font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.slot-lab .mins{margin-left:auto;color:#A2AEA8}
+.slot-name{font-size:12.5px;font-weight:500;line-height:1.25;margin:3px 0 5px;color:var(--ink)}
+.slot-nums{display:flex;gap:7px;align-items:baseline}
+.kcal{font-size:12px;font-weight:600;color:var(--ink)}
+.kcal em{font-style:normal;font-size:9px;color:var(--muted);margin-left:1px}
+.pro{font-size:10px;color:var(--tile);font-weight:600}
+.swap-cta{
+  display:block;width:100%;margin:0 0 18px;padding:12px 14px;
+  background:var(--tile);border:1px solid var(--tile);color:#fff;
+  font-size:12.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  font-family:'Archivo',sans-serif;
+}
+.swap-cta:hover{background:var(--tile-dk);border-color:var(--tile-dk)}
+.swap{
+  position:absolute;top:5px;right:5px;border:1px solid var(--rule-soft);
+  background:#F2F5F1;color:var(--tile);font-size:12px;line-height:1;
+  padding:3px 5px;border-radius:2px;
+}
+.swap:hover{background:var(--tile);color:#fff;border-color:var(--tile)}
+.slot.empty .slot-name{color:#A9B4AC;font-style:italic}
+
+.day-foot{border-top:1px solid var(--rule-soft);padding:6px 8px 7px;display:flex;align-items:center;gap:6px}
+.day-tot{font-size:11px;font-weight:600}
+.day-tot.over{color:var(--warn)}
+.day-tot.under{color:var(--tile)}
+.day-pro{font-size:10px;color:var(--muted);margin-left:auto}
+/* ---------- week tabs + lock ---------- */
+.tabs{display:flex;gap:0;margin-top:12px;border-bottom:1px solid #24404A;flex-wrap:wrap}
+.tab{
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  color:#8FA5A4;font-family:'Archivo Narrow',sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+  padding:9px 16px 8px;border-radius:0;
+}
+.tab:hover{color:#D5DEDA}
+.tab[aria-selected="true"]{color:var(--saffron);border-bottom-color:var(--saffron)}
+.tab .pin{font-size:10px;opacity:.8;margin-left:7px}
+.lockstate{margin-left:auto;display:flex;align-items:center;gap:9px;padding-bottom:6px}
+.lock-note{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7E9695}
+.btn-lock{
+  background:transparent;border:1px solid #3A5058;color:#D5DEDA;padding:6px 12px;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;
+}
+.btn-lock.on{border-color:var(--saffron);color:var(--saffron);background:rgba(224,160,8,.09)}
+.btn-lock:hover{background:#1E353E}
+.btn-lock.on:hover{background:rgba(224,160,8,.18)}
+.btn[disabled]{opacity:.32;cursor:not-allowed}
+.btn[disabled]:hover{background:transparent;border-color:#3A5058;color:#D5DEDA}
+.btn.confirming{background:var(--warn);border-color:var(--warn);color:#fff}
+
+.locked-banner{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:#EEF1EC;border:1px solid var(--rule);border-left:3px solid var(--tile);
+  border-radius:var(--r);padding:9px 13px;margin-bottom:12px;font-size:12.5px;color:var(--ink-soft);
+}
+.locked-banner b{color:var(--ink)}
+.share-url{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;padding:9px 10px;
+  border:1px solid var(--rule);border-radius:var(--r);background:#fff;color:var(--ink);
+  word-break:break-all;max-height:120px;overflow:auto;
+}
+.copy-btn{
+  margin-top:10px;background:var(--tile);color:#fff;border:1px solid var(--tile);
+  padding:10px 16px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;
+}
+.copy-btn:hover{background:var(--tile-dk);border-color:var(--tile-dk)}
+
+/* prep + action rail — sits above the board, outside the week */
+.rail{display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap;align-items:stretch}
+.rail-lab{
+  display:flex;align-items:center;font-family:'Archivo Narrow',sans-serif;
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  font-weight:700;padding-right:4px;
+}
+.prep-card{
+  flex:1 1 230px;text-align:left;font-family:inherit;cursor:pointer;
+  background:#F6F2E4;border:1px solid var(--saffron);border-left-width:3px;
+  border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:14px;
+  min-height:48px;transition:background .12s;
+}
+.prep-card:hover{background:#FBF4DE}
+.prep-card.quiet{background:var(--docket);border-color:var(--rule);border-left-color:var(--rule)}
+.prep-card.quiet:hover{background:#F4F6F2}
+.prep-card.tool{flex:0 1 172px;background:var(--docket);border-color:var(--rule);border-left-color:var(--tile)}
+.prep-card.tool:hover{background:#F1F7F4}
+.pc-when{
+  font-family:'Archivo Narrow',sans-serif;font-size:14px;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink);display:block;
+}
+.pc-note{font-size:11px;color:var(--muted);margin-top:2px;display:block}
+.pc-mins{margin-left:auto;text-align:right;white-space:nowrap}
+.pc-mins b{display:block;font-size:17px;font-weight:600;color:var(--saffron-dk)}
+.prep-card.quiet .pc-mins b{color:var(--muted)}
+.pc-mins span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- drawer ---------- */
+.scrim{
+  position:fixed;inset:0;background:rgba(20,38,46,.42);opacity:0;pointer-events:none;
+  transition:opacity .18s;z-index:50;
+}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;height:100%;width:min(500px,100%);
+  background:var(--docket);z-index:60;transform:translateX(102%);
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;box-shadow:-20px 0 50px -30px rgba(0,0,0,.7);
+}
+.drawer.on{transform:none}
+/* torn docket edge */
+.drawer::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:6px;
+  background:repeating-linear-gradient(90deg,var(--ink) 0 5px,transparent 5px 10px);
+  opacity:.85;
+}
+.d-head{padding:20px 24px 14px;border-bottom:1px solid var(--rule)}
+.d-eyebrow{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tile);font-weight:700}
+.d-title{
+  font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:23px;
+  line-height:1.1;margin:6px 0 0;letter-spacing:.01em;
+}
+.d-meta{display:flex;gap:16px;margin-top:9px;flex-wrap:wrap}
+.d-meta div{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.d-meta b{display:block;font-size:15px;color:var(--ink);letter-spacing:0;text-transform:none;margin-top:1px}
+.d-close{
+  position:absolute;top:18px;right:20px;background:transparent;border:1px solid var(--rule);
+  width:28px;height:28px;color:var(--ink-soft);font-size:15px;line-height:1;
+}
+.d-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.d-body{padding:18px 24px 40px;overflow-y:auto;flex:1}
+.d-blurb{color:var(--ink-soft);font-size:13.5px;margin:0 0 20px}
+
+.sec-lab{
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:baseline;
+}
+.sec-lab span{margin-left:auto;letter-spacing:.08em;color:#A2AEA8}
+.sec{margin-bottom:26px}
+
+/* portions = scale readout */
+.port{display:flex;align-items:baseline;gap:10px;padding:6px 0;border-bottom:1px dotted var(--rule-soft)}
+.port-n{flex:1;font-size:13px}
+.port-a{font-size:13px;font-weight:600;color:var(--tile);min-width:62px;text-align:right}
+.port-c{font-size:11.5px;color:var(--muted);min-width:52px;text-align:right}
+.port.sum{border-bottom:none;border-top:2px solid var(--ink);margin-top:4px;padding-top:8px;font-weight:600}
+.port.sum .port-n{font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.port.sum .port-a{color:var(--ink)}
+.budget-note{margin-top:9px;font-size:11.5px;color:var(--muted)}
+.budget-note b{color:var(--ink)}
+.budget-note.over b{color:var(--warn)}
+
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.steps li{
+  counter-increment:s;position:relative;padding:0 0 12px 30px;font-size:13.5px;color:var(--ink-soft);
+}
+ol.steps li::before{
+  content:counter(s);position:absolute;left:0;top:1px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;
+  width:19px;height:19px;border:1px solid var(--tile);color:var(--tile);
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+}
+ul.plain{margin:0;padding:0;list-style:none}
+ul.plain li{padding:5px 0;border-bottom:1px dotted var(--rule-soft);font-size:13px;display:flex;gap:10px}
+ul.plain li b{margin-left:auto;font-weight:500;color:var(--muted);font-size:12px}
+
+/* swap list */
+.alt{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:#fff;border:1px solid var(--rule-soft);border-radius:var(--r);
+  padding:9px 11px;margin-bottom:6px;font-family:inherit;
+}
+.alt:hover{border-color:var(--tile);background:#F5FAF8}
+.alt.cur{border-color:var(--saffron);background:#FDF8EA}
+.alt-n{flex:1;font-size:13px;font-weight:500}
+.alt-n i{display:block;font-style:normal;font-size:10.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.alt-c{font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
+
+.chip{
+  display:inline-block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--rule);color:var(--muted);padding:2px 6px;border-radius:2px;margin:0 4px 4px 0;
+}
+.chip.batch{border-color:var(--saffron-dk);color:var(--saffron-dk);background:#FDF8EA}
+.sess{margin-bottom:26px}
+.sess-h{display:flex;align-items:baseline;gap:9px;margin-bottom:10px}
+.sess-h h3{font-family:'Archivo Narrow',sans-serif;font-size:16px;letter-spacing:.1em;text-transform:uppercase;margin:0}
+.sess-h span{font-size:11px;color:var(--muted)}
+.task{border-left:2px solid var(--tile);padding:2px 0 2px 12px;margin-bottom:14px}
+.task-n{font-size:13.5px;font-weight:600;margin-bottom:2px}
+.task-m{font-size:11px;color:var(--muted);margin-bottom:6px}
+.task ol{margin:0;padding-left:16px;font-size:12.5px;color:var(--ink-soft)}
+.task ol li{padding:1px 0}
+.empty-note{color:var(--muted);font-size:13px;font-style:italic}
+.foot-note{
+  margin-top:8px;padding:11px 13px;background:#EEF1EC;border-left:2px solid var(--rule);
+  font-size:12px;color:var(--ink-soft);
+}
+.cat-h{
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tile);
+  font-weight:700;margin:18px 0 4px;
+}
+.cat-h:first-child{margin-top:0}
+@media (max-width:1180px){ .board{grid-template-columns:repeat(4,minmax(0,1fr))} }
+@media (max-width:900px){ .board{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+@media (max-width:640px){
+  header{position:static;padding:12px 14px 0}
+  main{padding:14px 14px 48px}
+  h1{font-size:21px}
+  .head-top{gap:12px}
+  .actions{width:100%;margin-left:0;gap:6px}
+  .actions .btn{flex:1 1 auto;padding:11px 8px;font-size:11px}
+  .targets{margin:10px -14px 0;padding:0 14px}
+  .t-cell{min-width:76px;padding:8px 12px 9px}
+  .t-val{font-size:14px}
+  .tabs{margin-top:10px}
+  .tab{flex:1 1 auto;padding:12px 8px 10px;font-size:12px;letter-spacing:.1em}
+  .lockstate{width:100%;margin-left:0;padding:8px 0;border-top:1px solid #24404A}
+  .btn-lock{padding:9px 14px}
+
+  .rail{gap:8px}
+  .rail-lab{display:none}
+  .prep-card{flex:1 1 100%}
+  .prep-card.tool{flex:1 1 calc(50% - 4px)}
+
+  /* one day per row, slots become compact horizontal lines */
+  .board{grid-template-columns:1fr;gap:8px}
+  .day-head{padding:11px 12px 10px}
+  .day-name{font-size:15px}
+  .slots{padding:8px;gap:6px}
+  .slot{
+    display:grid;grid-template-columns:64px 1fr auto;align-items:center;
+    gap:10px;padding:11px 36px 11px 11px;min-height:48px;
+  }
+  .slot-lab{margin:0;font-size:8px;letter-spacing:.11em;line-height:1.3}
+  .slot-lab .mins{display:none}
+  .slot-name{margin:0;font-size:13.5px}
+  .slot-nums{flex-direction:column;align-items:flex-end;gap:0}
+  .kcal{font-size:13px}
+  .swap{top:50%;transform:translateY(-50%);right:8px;font-size:16px;padding:7px}
+  .day-foot{padding:10px 12px}
+
+  .drawer{width:100%}
+  .d-head{padding:22px 18px 14px}
+  .d-body{padding:16px 18px 48px}
+  .d-title{font-size:21px}
+  .alt{padding:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-top">
+    <div>
+      <h1>Week <span>Service</span></h1>
+      <p class="sub">Poya · 1 measured plate, 3 people eating</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-go" id="gen">Generate week</button>
+      <button class="btn" id="roll">Start new week</button>
+      <button class="btn" id="share">Share</button>
+      <button class="btn" id="exp">Export data</button>
+    </div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tabCurrent" role="tab" aria-selected="true">This week</button>
+    <button class="tab" id="tabNext" role="tab" aria-selected="false">Next week</button>
+    <div class="lockstate">
+      <span class="lock-note" id="lockNote"></span>
+      <button class="btn-lock" id="lockBtn"></button>
+    </div>
+  </div>
+  <div class="targets" id="targets"></div>
+</header>
+
+<main>
+  <div id="banner"></div>
+  <div class="rail" id="rail"></div>
+  <div class="board" id="board"></div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="d-head">
+    <div class="d-eyebrow" id="dEyebrow"></div>
+    <h2 class="d-title" id="dTitle"></h2>
+    <div class="d-meta" id="dMeta"></div>
+    <button class="d-close" id="dClose" aria-label="Close">✕</button>
+  </div>
+  <div class="d-body" id="dBody"></div>
+</aside>
+
+<script>
+/* ============================================================
+   DATA — edit this block to add, remove or change meals.
+   portion  = {n:name, a:amount, c:calories, p:protein}
+   buy      = {n:item, q:quantity, c:category}
+   base     = id of a prep item this meal depends on (or null)
+   Meal calories/protein are the SUM of its portions, so the
+   numbers on the board always match the docket.
+   ============================================================ */
+
+const TARGETS = { breakfast:350, snack1:175, lunch:400, dinner:550, snack2:175 };
+const DAILY   = { cal:1650, protein:140 };
+
+const PREP = {
+  'curry-base':{ name:'Chicken curry base', mins:20, keeps:4, feeds:'3–4 servings',
+    steps:['Dice 2 onions, crush 6 garlic, grate a thumb of ginger.','Sauté in the pressure cooker on Sauté with 1 tbsp oil until soft, 5 min.','Add 3 tbsp curry paste, fry 1 min until fragrant.','Add 1kg skinless thigh (trimmed, halved) and a 400g tin of tomato. Stir.','Pressure cook 12 min, natural release 10.','Cool, then split into portions. Do NOT add coconut milk yet — that goes in per night.'],
+    buy:[{n:'Chicken thigh fillet, skinless',q:'1kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Garlic',q:'1 bulb',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'},{n:'Curry paste',q:'1 jar',c:'Pantry'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'}] },
+  'mince-base':{ name:'Beef mince base', mins:15, keeps:4, feeds:'3–4 servings',
+    steps:['Brown 750g lean (5-star) mince in a hot pan, breaking it up. Drain any fat.','Add 1 diced onion, 4 crushed garlic, cook 4 min.','Add a 400g tin of tomato and 2 tbsp passata. Simmer 8 min.','Season with salt and pepper only. Leave it neutral — it becomes Mexican or bolognese later.'],
+    buy:[{n:'Beef mince, lean 5-star',q:'750g',c:'Meat & fish'},{n:'Brown onion',q:'1',c:'Fruit & veg'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}] },
+  'slow-beef':{ name:'Slow cooker beef', mins:15, keeps:4, feeds:'3–4 servings',
+    steps:['Sear 1.2kg chuck steak in chunks, in batches, until well browned. Worth the 8 minutes.','Into the slow cooker with 2 sliced onions, 4 garlic, 2 bay, 300ml stock, 2 tbsp tomato paste.','Low 6–7 hours, or pressure cook 45 min.','Shred with two forks in the liquid. Keeps 4 days and is better on day two.'],
+    buy:[{n:'Beef chuck steak',q:'1.2kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Beef stock',q:'500ml',c:'Pantry'},{n:'Tomato paste',q:'1 tube',c:'Pantry'}] },
+  'poached-chicken':{ name:'Poached shredded chicken', mins:10, keeps:4, feeds:'4–5 servings',
+    steps:['800g chicken breast into the pressure cooker with 250ml stock, a bay leaf, a few peppercorns.','Pressure cook 8 min, quick release.','Shred in the liquid, then store with a splash of it so it does not dry out.'],
+    buy:[{n:'Chicken breast',q:'800g',c:'Meat & fish'},{n:'Chicken stock',q:'500ml',c:'Pantry'}] },
+  'joojeh':{ name:'Joojeh marinade (raw)', mins:10, keeps:2, feeds:'2 nights',
+    steps:['Whisk 150g Greek yoghurt, juice of 1 lemon, 1 grated onion, salt, pepper.','Bloom a good pinch of saffron in 1 tbsp hot water for 5 min, stir it in.','Add 600g thigh in 3cm pieces. Cover, fridge. Better at 24h than at 2h.','Stays good raw in the marinade for 2 days.'],
+    buy:[{n:'Chicken thigh fillet, skinless',q:'600g',c:'Meat & fish'},{n:'Greek yoghurt',q:'500g tub',c:'Dairy & eggs'},{n:'Lemon',q:'2',c:'Fruit & veg'},{n:'Saffron',q:'pinch',c:'Pantry'}] },
+  'veg-tray':{ name:'Roast veg tray', mins:10, keeps:4, feeds:'3–4 sides',
+    steps:['Chop broccoli, capsicum, zucchini, red onion, carrot into large chunks.','One tbsp of oil across the whole tray, salt, pepper. Toss.','200°C for 25 min. No turning required.','Cool fully before it goes in a container or it steams itself soggy.'],
+    buy:[{n:'Broccoli',q:'1 head',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Zucchini',q:'2',c:'Fruit & veg'},{n:'Red onion',q:'2',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'}] },
+  'eggs':{ name:'Boiled eggs', mins:10, keeps:7, feeds:'8–10 eggs',
+    steps:['8 minutes in boiling water for a set-but-not-chalky yolk.','Straight into iced water, then peel while cool. Unpeeled keeps better.'],
+    buy:[{n:'Eggs',q:'1 dozen',c:'Dairy & eggs'}] },
+  'oats':{ name:'Overnight oats', mins:8, topUpMins:3, keeps:4, feeds:'1 jar per oat day',
+    steps:['One jar per oat day on the board this week — the chips below tell you how many.','Into each: 40g oats, 170g protein yoghurt, 5g chia, a splash of milk.','Top with berries. Frozen is fine and cheaper.','They are ready the next morning and good for four days. Past that the texture goes claggy, so do not make a jar for a day more than four sleeps away.'],
+    buy:[{n:'Rolled oats',q:'500g',c:'Pantry'},{n:'Protein yoghurt (Chobani Zero / YoPRO)',q:'6 tubs',c:'Dairy & eggs'},{n:'Chia seeds',q:'1 pkt',c:'Pantry'},{n:'Frozen berries',q:'500g',c:'Frozen'}] },
+  'crunch-box':{ name:'Crunch box + cut fruit', mins:15, topUpMins:8, keeps:3, feeds:'Snacks + kindy',
+    steps:['Cut cucumber, carrot and capsicum into sticks. One big container.','Cut melon, grapes off the stem, apple slices in lemon water.','This doubles as your late-night snack and the kindy boxes. It is the single highest-value 15 minutes of the session.'],
+    buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Carrot',q:'1 bag',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Cherry tomatoes',q:'1 punnet',c:'Fruit & veg'},{n:'Seasonal fruit',q:'mixed',c:'Fruit & veg'}] }
+};
+
+const MEALS = [
+/* ---------------- BREAKFAST ---------------- */
+{id:'b-oats',slot:'breakfast',name:'Overnight oats',mins:1,base:'oats',
+ blurb:'Made Sunday, good for four days. Scattered across the early week rather than eaten four mornings straight, so you do not get sick of them.',
+ portions:[{n:'Rolled oats',a:'40g',c:150,p:5},{n:'Protein yoghurt',a:'170g',c:110,p:18},{n:'Frozen berries',a:'60g',c:30,p:1},{n:'Chia seeds',a:'5g',c:25,p:1}]},
+{id:'b-eggs',slot:'breakfast',name:'Eggs on toast + yoghurt',mins:8,base:null,
+ blurb:'The reliable one. Also your emergency dinner if a weeknight falls apart.',
+ portions:[{n:'Eggs',a:'2 large',c:145,p:13},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Greek yoghurt',a:'100g',c:95,p:9},{n:'Wilted spinach',a:'handful',c:10,p:1}],
+ steps:['Toast on. Spinach into a dry pan with a splash of water, 1 min.','Eggs however you like them — poached keeps it lean.','Yoghurt on the side, not on the toast.'],
+ buy:[{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
+{id:'b-salmon',slot:'breakfast',name:'Smoked salmon toast',mins:4,base:null,
+ blurb:'Feels like a café breakfast, costs you nothing in protein.',
+ portions:[{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Light cream cheese',a:'30g',c:55,p:3},{n:'Smoked salmon',a:'80g',c:110,p:18},{n:'Capers, dill, lemon',a:'to taste',c:5,p:0}],
+ buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'}]},
+{id:'b-cottage',slot:'breakfast',name:'Cottage cheese, honey + cinnamon toast',mins:3,base:null,
+ blurb:'The sweet one that still carries protein. Goes better with coffee than eggs do.',
+ portions:[{n:'Wholemeal toast',a:'2 slices',c:200,p:8},{n:'Cottage cheese',a:'120g',c:110,p:14},{n:'Honey',a:'1 tsp',c:20,p:0},{n:'Cinnamon',a:'a shake',c:0,p:0}],
+ buy:[{n:'Cottage cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Honey',q:'1 jar',c:'Pantry'}]},
+{id:'b-weetbix',slot:'breakfast',name:'Weetbix, milk + protein',mins:2,base:null,
+ blurb:'Weetbix on its own is 4g of protein. The scoop is what makes it a breakfast rather than a snack.',
+ portions:[{n:'Weetbix',a:'2 biscuits',c:130,p:4},{n:'Skim milk',a:'200ml',c:70,p:7},{n:'Protein powder',a:'25g',c:95,p:22},{n:'Banana',a:'½',c:45,p:1}],
+ buy:[{n:'Weetbix',q:'1 box',c:'Pantry'},{n:'Protein powder',q:'1 tub',c:'Pantry'},{n:'Milk',q:'2L',c:'Dairy & eggs'},{n:'Bananas',q:'1 bunch',c:'Fruit & veg'}]},
+{id:'b-pb',slot:'breakfast',name:'PB banana toast + yoghurt',mins:3,base:null,
+ blurb:'Your current default, with a yoghurt bolted on to fix the protein gap.',
+ portions:[{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Peanut butter',a:'15g',c:95,p:4},{n:'Banana',a:'1 medium',c:90,p:1},{n:'Protein yoghurt',a:'150g',c:100,p:16}],
+ buy:[{n:'Peanut butter',q:'1 jar',c:'Pantry'},{n:'Bananas',q:'1 bunch',c:'Fruit & veg'}]},
+{id:'b-pancakes',slot:'breakfast',name:'Pancakes with the family',mins:25,base:null,weekend:true,
+ blurb:'This one is not a compromise, it is the point. Eat them, enjoy them, keep the rest of the day lean.',
+ portions:[{n:'Pancakes',a:'3 small',c:330,p:9},{n:'Berries',a:'80g',c:40,p:1},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Maple syrup',a:'1 tbsp',c:55,p:0}],
+ steps:['Make the batter with the four-year-old. That is half of what this meal is for.','Serve with yoghurt and berries rather than a jug of syrup on the table.','If you want to be careful, have two rather than four and a boiled egg alongside.'],
+ buy:[{n:'Plain flour',q:'1 bag',c:'Pantry'},{n:'Maple syrup',q:'1 bottle',c:'Pantry'},{n:'Berries',q:'1 punnet',c:'Fruit & veg'}]},
+
+/* ---------------- DAY SNACK ---------------- */
+{id:'s-yog',slot:'snack1',name:'Protein yoghurt tub',mins:0,base:null,
+ blurb:'Chobani Zero or YoPRO. Zero effort, 20g of protein, fits in a laptop bag.',
+ portions:[{n:'Protein yoghurt',a:'1 tub',c:120,p:20}],
+ buy:[{n:'Protein yoghurt (Chobani Zero / YoPRO)',q:'6 tubs',c:'Dairy & eggs'}]},
+{id:'s-cottage',slot:'snack1',name:'Cottage cheese + crackers',mins:2,base:null,
+ blurb:'Savoury option when you have had enough sweet things.',
+ portions:[{n:'Cottage cheese',a:'120g',c:110,p:14},{n:'Wholegrain crackers',a:'4',c:60,p:2}],
+ buy:[{n:'Wholegrain crackers',q:'1 box',c:'Pantry'},{n:'Cottage cheese',q:'1 tub',c:'Dairy & eggs'}]},
+{id:'s-tuna',slot:'snack1',name:'Tuna on rice cakes',mins:2,base:null,
+ blurb:'Highest protein-per-calorie snack on the list by a distance.',
+ portions:[{n:'Tinned tuna, drained',a:'95g',c:110,p:24},{n:'Rice cakes',a:'2',c:55,p:2}],
+ buy:[{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Rice cakes',q:'1 pkt',c:'Pantry'}]},
+{id:'s-shake',slot:'snack1',name:'Protein shake',mins:1,base:null,
+ blurb:'For the days that get away from you. Water, not milk, keeps it at snack size.',
+ portions:[{n:'Protein powder',a:'30g',c:120,p:25}],
+ buy:[{n:'Protein powder',q:'1 tub',c:'Pantry'}]},
+{id:'s-egg',slot:'snack1',name:'Boiled egg + a piece of fruit',mins:1,base:'eggs',
+ blurb:'Lower protein than the others, but it is real food and it is already in the fridge.',
+ portions:[{n:'Boiled egg',a:'1',c:72,p:6},{n:'Apple or mandarin',a:'1',c:85,p:1}],
+ buy:[{n:'Apples or mandarins',q:'6',c:'Fruit & veg'}]},
+
+/* ---------------- LUNCH ---------------- */
+{id:'l-chicken',slot:'lunch',name:'Chicken salad sandwich',mins:5,base:'poached-chicken',
+ blurb:'You like sandwiches and there is no reason to give them up. Roshani can take the same chicken into a bowl instead.',
+ portions:[{n:'Wholemeal bread',a:'2 slices',c:200,p:8},{n:'Poached chicken',a:'100g',c:165,p:31},{n:'Light mayo',a:'15g',c:35,p:0},{n:'Lettuce, tomato, cucumber',a:'load it up',c:15,p:1}],
+ buy:[{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Light mayonnaise',q:'1 jar',c:'Pantry'},{n:'Lettuce',q:'1',c:'Fruit & veg'},{n:'Tomatoes',q:'4',c:'Fruit & veg'}]},
+{id:'l-tuna',slot:'lunch',name:'Tuna sandwich',mins:5,base:null,
+ blurb:'No prep dependency at all. Good for a week where Sunday did not happen.',
+ portions:[{n:'Wholemeal bread',a:'2 slices',c:200,p:8},{n:'Tinned tuna',a:'95g',c:110,p:24},{n:'Light mayo',a:'15g',c:35,p:0},{n:'Cucumber, red onion',a:'plenty',c:10,p:1}],
+ buy:[{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Red onion',q:'2',c:'Fruit & veg'}]},
+{id:'l-egg',slot:'lunch',name:'Egg sandwich',mins:4,base:'eggs',
+ blurb:'Lowest protein of the sandwiches, so pair it with the tuna snack that day.',
+ portions:[{n:'Wholemeal bread',a:'2 slices',c:200,p:8},{n:'Boiled eggs, mashed',a:'2',c:145,p:13},{n:'Light mayo',a:'10g',c:25,p:0},{n:'Cress or rocket',a:'handful',c:5,p:0}]},
+{id:'l-beef-wrap',slot:'lunch',name:'Beef + tzatziki wrap',mins:5,base:'slow-beef',
+ blurb:'Slow cooker beef on day two or three, when it is at its best.',
+ portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Shredded beef',a:'110g',c:215,p:28},{n:'Tzatziki',a:'40g',c:35,p:2},{n:'Salad, pickled onion',a:'load it up',c:20,p:1}],
+ buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Tzatziki',q:'1 tub',c:'Dairy & eggs'}]},
+{id:'l-bowl',slot:'lunch',name:'Leftover rice bowl',mins:4,base:null,
+ blurb:'Whatever protein is in the fridge, over rice, with roast veg and a sauce. Roshani\'s version of your sandwich.',
+ portions:[{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Any cooked protein',a:'130g',c:220,p:33},{n:'Roast veg',a:'150g',c:70,p:3},{n:'Sauce of choice',a:'2 tbsp',c:50,p:1}]},
+{id:'l-salad',slot:'lunch',name:'Big protein salad',mins:6,base:null,
+ blurb:'The lightest lunch here, which buys you room at dinner.',
+ portions:[{n:'Leaves, cucumber, tomato',a:'a big bowl',c:60,p:4},{n:'Any cooked protein',a:'150g',c:250,p:36},{n:'Avocado',a:'30g',c:48,p:1},{n:'Vinaigrette',a:'1 tbsp',c:45,p:0}],
+ buy:[{n:'Mixed leaves',q:'1 bag',c:'Fruit & veg'},{n:'Avocado',q:'2',c:'Fruit & veg'}]},
+{id:'l-reheat',slot:'lunch',name:"Last night's dinner",mins:3,base:null,
+ blurb:'Always the right answer when it is available. Weigh it the same way you did last night.',
+ portions:[{n:'Reheated dinner portion',a:'~350g',c:400,p:35}]},
+
+{id:'l-caesar',slot:'lunch',name:'Chicken caesar wrap',mins:5,base:'poached-chicken',
+ blurb:'Wrap instead of bread, so Roshani will actually eat it too. The dressing is the only thing worth measuring.',
+ portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Poached chicken',a:'100g',c:165,p:31},{n:'Cos lettuce',a:'a big handful',c:10,p:1},{n:'Light caesar dressing',a:'20g',c:50,p:0},{n:'Parmesan',a:'8g',c:32,p:3}],
+ buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Cos lettuce',q:'1',c:'Fruit & veg'},{n:'Light caesar dressing',q:'1 bottle',c:'Pantry'}]},
+{id:'l-currybowl',slot:'lunch',name:'Curry rice bowl',mins:4,base:'curry-base',
+ blurb:'Straight out of the curry container, smaller than a dinner portion. The easiest lunch on the list when the base is in the fridge.',
+ portions:[{n:'Curry base',a:'130g',c:230,p:31},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Green beans or spinach',a:'100g',c:30,p:2}]},
+{id:'l-quesadilla',slot:'lunch',name:'Beef quesadilla',mins:8,base:'mince-base',
+ blurb:'Milan will eat this one without negotiation. Dry pan, no oil, press it flat and turn once.',
+ portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Mince base',a:'100g',c:160,p:23},{n:'Grated cheese',a:'20g',c:80,p:6},{n:'Salsa and salad',a:'plenty',c:20,p:1}],
+ steps:['Mince and cheese over half the wrap, fold it over.','Dry pan on medium, 3 min a side, pressed down with a spatula.','Cut into wedges. Salsa and salad on the side rather than inside, so it stays crisp.'],
+ buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Grated tasty cheese',q:'1 bag',c:'Dairy & eggs'},{n:'Salsa',q:'1 jar',c:'Pantry'}]},
+{id:'l-nasi',slot:'lunch',name:'Nasi goreng',mins:10,base:'eggs',
+ blurb:'Leftover rice is better than fresh for this. Kecap manis does most of the work, and sambal goes on the adult plates only.',
+ portions:[{n:'Rice, cooked and cold',a:'100g',c:130,p:3},{n:'Fried egg',a:'1',c:90,p:6},{n:'Any cooked protein',a:'100g',c:165,p:24},{n:'Veg, diced',a:'100g',c:40,p:2},{n:'Kecap manis, soy, sambal',a:'1.5 tbsp',c:30,p:1}],
+ steps:['Hot wok, thin film of oil. Veg first, 2 min.','Rice in, break it up, leave it alone for a minute so it catches.','Protein and kecap manis through. Fried egg on top.','Sambal on the side. Milan gets cucumber instead.'],
+ buy:[{n:'Kecap manis',q:'1 bottle',c:'Pantry'},{n:'Sambal oelek',q:'1 jar',c:'Pantry'}]},
+{id:'l-tunabean',slot:'lunch',name:'Tuna and white bean salad',mins:5,base:null,
+ blurb:'Entirely from the pantry, no prep dependency, and the lightest lunch here. Good on a day dinner is heavy.',
+ portions:[{n:'Tinned tuna',a:'95g',c:110,p:24},{n:'Cannellini beans',a:'120g',c:130,p:8},{n:'Leaves, tomato, red onion',a:'a big bowl',c:40,p:3},{n:'Olive oil and lemon',a:'1 tsp',c:45,p:0}],
+ buy:[{n:'Tinned cannellini beans',q:'2 tins',c:'Pantry'},{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Mixed leaves',q:'1 bag',c:'Fruit & veg'}]},
+/* ---------------- DINNER ---------------- */
+{id:'d-curry',slot:'dinner',name:'Chicken curry + rice',mins:8,base:'curry-base',
+ blurb:'Your household staple, unchanged. The coconut milk goes in per serve rather than into the batch, which is what keeps it measurable.',
+ portions:[{n:'Curry base',a:'150g',c:265,p:36},{n:'Basmati rice, cooked',a:'150g',c:195,p:4},{n:'Light coconut milk',a:'60ml',c:45,p:0},{n:'Green beans, steamed',a:'100g',c:35,p:2}],
+ steps:['Curry base into a pan with the coconut milk. 6 minutes on medium.','Rice: 12 min in the pressure cooker, or reheat from the fridge.','Beans in the microwave with a splash of water, 3 min.','Coriander and a squeeze of lime at the end. Milan gets his without chilli.'],
+ buy:[{n:'Light coconut milk',q:'2 tins',c:'Pantry'},{n:'Basmati rice',q:'1kg',c:'Pantry'},{n:'Green beans',q:'400g',c:'Fruit & veg'},{n:'Coriander, lime',q:'1 each',c:'Fruit & veg'}]},
+{id:'d-stirfry',slot:'dinner',name:'Malaysian chicken stir fry',mins:12,base:'poached-chicken',
+ blurb:'Uses the poached chicken, so it is assembly rather than cooking. Sambal on the side so the four-year-old can opt out.',
+ portions:[{n:'Poached chicken',a:'140g',c:230,p:43},{n:'Rice noodles, cooked',a:'150g',c:165,p:3},{n:'Stir-fry veg',a:'250g',c:75,p:5},{n:'Soy, sesame, ginger, garlic',a:'2 tbsp',c:70,p:1}],
+ steps:['Noodles into boiled water off the heat, 5 min, drain.','Veg into a screaming hot wok or pan, 3 min. Do not crowd it.','Chicken in to warm through, 2 min. It is already cooked.','Sauce in last, toss, off the heat. Noodles through.'],
+ buy:[{n:'Rice noodles',q:'1 pkt',c:'Pantry'},{n:'Stir-fry vegetables',q:'500g',c:'Fruit & veg'},{n:'Soy sauce',q:'1 bottle',c:'Pantry'},{n:'Sesame oil',q:'1 bottle',c:'Pantry'},{n:'Sambal oelek',q:'1 jar',c:'Pantry'}]},
+{id:'d-joojeh',slot:'dinner',name:'Joojeh skewers + rice + salad shirazi',mins:15,base:'joojeh',
+ blurb:'Persian food in a weeknight format. The marinade does the work on Sunday, the air fryer does the rest in fifteen minutes.',
+ portions:[{n:'Joojeh chicken, cooked',a:'150g',c:250,p:36},{n:'Basmati rice, cooked',a:'150g',c:195,p:4},{n:'Salad shirazi',a:'150g',c:45,p:1},{n:'Yoghurt sauce',a:'60g',c:45,p:5},{n:'Grilled tomato',a:'1',c:20,p:1}],
+ steps:['Chicken out of the marinade onto skewers, or straight into the air fryer basket.','200°C, 15 min, shake at 8. Add a halved tomato for the last 6.','Salad shirazi: cucumber, tomato and onion in small dice, lime, salt, mint. Two minutes.','Rice from the pressure cooker. Butter for them, none for you.'],
+ buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Tomatoes',q:'6',c:'Fruit & veg'},{n:'Mint',q:'1 bunch',c:'Fruit & veg'},{n:'Basmati rice',q:'1kg',c:'Pantry'}]},
+{id:'d-salmon',slot:'dinner',name:'Air fryer salmon + rice + broccolini',mins:12,base:null,
+ blurb:'The fastest genuine meal here. Nothing prepped in advance, still on the table in twelve minutes.',
+ portions:[{n:'Salmon fillet',a:'150g',c:280,p:34},{n:'Rice, cooked',a:'120g',c:155,p:3},{n:'Broccolini',a:'150g',c:50,p:4},{n:'Olive oil, lemon, chilli',a:'1 tsp',c:40,p:0}],
+ steps:['Salmon skin-side down in the air fryer, 200°C, 10 min. Salt and pepper only.','Broccolini in alongside for the last 6 min, or steamed in the microwave.','Lemon over everything at the end. Chilli flakes on the two adult plates.'],
+ buy:[{n:'Salmon fillets',q:'3',c:'Meat & fish'},{n:'Broccolini',q:'2 bunches',c:'Fruit & veg'},{n:'Lemon',q:'2',c:'Fruit & veg'}]},
+{id:'d-mexican',slot:'dinner',name:'Mexican beef bowl',mins:10,base:'mince-base',
+ blurb:'Bowl rather than wrap keeps the carb measurable. Milan builds his own, which is most of the appeal for him.',
+ portions:[{n:'Mince base',a:'150g',c:240,p:34},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Lettuce, tomato, corn',a:'150g',c:60,p:3},{n:'Light sour cream',a:'40g',c:50,p:2},{n:'Avocado',a:'30g',c:48,p:1}],
+ steps:['Mince base into a pan with 1 tsp smoked paprika, 1 tsp cumin, pinch of chilli. 5 min.','Everything into bowls on the table and let people build their own.','Milan gets a wrap if he wants one — same food, different vehicle.'],
+ buy:[{n:'Smoked paprika, cumin',q:'1 each',c:'Pantry'},{n:'Light sour cream',q:'1 tub',c:'Dairy & eggs'},{n:'Avocado',q:'2',c:'Fruit & veg'},{n:'Tinned corn',q:'1 tin',c:'Pantry'},{n:'Lettuce',q:'1',c:'Fruit & veg'}]},
+{id:'d-bolognese',slot:'dinner',name:'Bolognese',mins:15,base:'mince-base',
+ blurb:'Same mince base, three nights later, and nobody notices it is the same starting point. Grated carrot and zucchini go in unannounced.',
+ portions:[{n:'Mince base',a:'150g',c:240,p:34},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'150g',c:50,p:3},{n:'Parmesan',a:'10g',c:40,p:4}],
+ steps:['Pasta on. Weigh yours dry at 60g — after cooking it is impossible to judge.','Mince base with passata, oregano, a bay leaf and grated carrot and zucchini. Simmer while the pasta cooks.','Sauce over pasta rather than pasta into sauce, so your portion stays yours.'],
+ buy:[{n:'Pasta',q:'500g',c:'Pantry'},{n:'Parmesan',q:'1 block',c:'Dairy & eggs'},{n:'Passata',q:'1 bottle',c:'Pantry'},{n:'Dried oregano',q:'1',c:'Pantry'}]},
+{id:'d-creamy',slot:'dinner',name:"Roshani's creamy pasta, adjusted",mins:20,base:null,
+ blurb:'Half the cream swapped for light cooking cream, chicken added, your pasta weighed. It tastes the same and it fits.',
+ portions:[{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Chicken, diced',a:'100g',c:165,p:31},{n:'Bacon',a:'20g',c:55,p:5},{n:'Mushroom + broccolini',a:'150g',c:50,p:4},{n:'Light cooking cream',a:'60ml',c:90,p:2}],
+ steps:['Bacon rendered first, then chicken in the same pan.','Mushrooms in, cooked hard until they colour. Broccolini in for the last 3 min.','Light cream and a ladle of pasta water. Reduce, do not boil.','Weigh your pasta dry. This is the meal where estimating goes wrong.'],
+ buy:[{n:'Bacon',q:'1 pkt',c:'Meat & fish'},{n:'Mushrooms',q:'400g',c:'Fruit & veg'},{n:'Light cooking cream',q:'1 carton',c:'Dairy & eggs'},{n:'Broccolini',q:'2 bunches',c:'Fruit & veg'}]},
+{id:'d-beef-mash',slot:'dinner',name:'Slow cooker beef + mash',mins:15,base:'slow-beef',
+ blurb:'Sunday night food. Cook it while you do the rest of the prep session and it costs you nothing extra.',
+ portions:[{n:'Shredded beef',a:'150g',c:290,p:38},{n:'Potato mash',a:'180g',c:170,p:4},{n:'Green vegetables',a:'150g',c:45,p:3}],
+ steps:['Beef is already done. Reduce a ladle of the cooking liquid hard for 3 min to make a gravy.','Mash with milk and a little stock rather than butter and cream. Nobody can tell.','Peas or beans. Milan will eat peas.'],
+ buy:[{n:'Potatoes',q:'1.5kg',c:'Fruit & veg'},{n:'Frozen peas',q:'1 bag',c:'Frozen'}]},
+{id:'d-poke',slot:'dinner',name:'Poke bowl',mins:8,base:null,
+ blurb:'No cooking at all beyond the rice. The closest thing to buying sushi without buying sushi.',
+ portions:[{n:'Sushi rice, cooked',a:'130g',c:170,p:3},{n:'Smoked or sashimi salmon',a:'120g',c:200,p:25},{n:'Edamame',a:'80g',c:95,p:8},{n:'Cucumber, carrot, nori',a:'plenty',c:25,p:1},{n:'Sriracha mayo (light)',a:'20g',c:55,p:0}],
+ steps:['Rice cooked and cooled slightly, seasoned with a splash of rice vinegar.','Everything arranged on top rather than mixed, so you can see what you are eating.','Milan gets his deconstructed with plain rice and cucumber. He will eat the salmon eventually.'],
+ buy:[{n:'Salmon (sashimi or smoked)',q:'400g',c:'Meat & fish'},{n:'Sushi rice',q:'1kg',c:'Pantry'},{n:'Frozen edamame',q:'1 bag',c:'Frozen'},{n:'Nori sheets',q:'1 pkt',c:'Pantry'},{n:'Rice vinegar',q:'1 bottle',c:'Pantry'}]},
+{id:'d-thighs',slot:'dinner',name:'Air fryer chicken thighs + roast veg',mins:25,base:'veg-tray',
+ blurb:'Twenty-five minutes but only five of them are yours. Start it, go do something else.',
+ portions:[{n:'Chicken thigh, skinless',a:'150g',c:265,p:36},{n:'Roast potato',a:'150g',c:145,p:3},{n:'Roast veg',a:'200g',c:90,p:4},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5}],
+ steps:['Thighs rubbed with paprika, garlic powder, salt. Air fryer 200°C, 18 min.','Potatoes in the oven or a second air fryer round, 25 min.','Roast veg from the Sunday tray, reheated for the last 5 min.','Yoghurt, crushed garlic, lemon, salt. Thirty seconds and it lifts the whole plate.'],
+ buy:[{n:'Chicken thigh fillet, skinless',q:'800g',c:'Meat & fish'},{n:'Potatoes',q:'1kg',c:'Fruit & veg'},{n:'Garlic powder, paprika',q:'1 each',c:'Pantry'}]},
+{id:'d-fish',slot:'dinner',name:'Steamed ginger fish + rice',mins:15,base:null,
+ blurb:'The lightest dinner on the list, which makes it the one to use on a day you have eaten out at lunch.',
+ portions:[{n:'White fish fillet',a:'180g',c:170,p:38},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Bok choy',a:'150g',c:30,p:3},{n:'Soy, ginger, sesame, spring onion',a:'2 tbsp',c:70,p:1}],
+ steps:['Fish on a plate with julienned ginger, in a steamer or over simmering water, 8–10 min.','Bok choy in for the last 3 min.','Soy and a spoon of hot sesame oil poured over at the table. The sizzle is the whole trick and Milan will want to watch it.'],
+ buy:[{n:'White fish fillets (barramundi, snapper)',q:'3',c:'Meat & fish'},{n:'Bok choy',q:'2 bunches',c:'Fruit & veg'},{n:'Spring onions',q:'1 bunch',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'}]},
+{id:'d-bought',slot:'dinner',name:'Bought and measured',mins:5,base:null,
+ blurb:'Not a failure. A ready meal with a nutrition panel is more accurate than something you cooked and estimated. Look for 450–550 cal and 35g+ protein.',
+ portions:[{n:'Ready meal (Coles, My Muscle Chef, Youfoodz)',a:'1',c:480,p:38},{n:'Side of steamed veg',a:'150g',c:50,p:3}],
+ steps:['Read the panel, not the front of the box. Per serve, not per 100g.','Add vegetables. Almost every ready meal is short on them.','If you are ordering in instead, the same rule applies: protein plus veg plus one measured carb.']},
+
+{id:'d-laksa',slot:'dinner',name:'Chicken laksa-style noodle soup',mins:12,base:'curry-base',
+ blurb:'Same curry base, completely different meal. Loosen it with stock and coconut milk and it stops being a curry.',
+ portions:[{n:'Curry base',a:'150g',c:265,p:36},{n:'Rice noodles, cooked',a:'120g',c:130,p:2},{n:'Light coconut milk + stock',a:'80ml',c:60,p:1},{n:'Bean sprouts, bok choy',a:'150g',c:35,p:3},{n:'Boiled egg',a:'1',c:72,p:6}],
+ steps:['Curry base into a pot with 250ml stock and the coconut milk. Simmer 6 min.','Noodles in bowls, soup over the top.','Bean sprouts, coriander, lime and half a boiled egg on each. Milan gets his noodles separate with a little broth.'],
+ buy:[{n:'Bean sprouts',q:'1 bag',c:'Fruit & veg'},{n:'Bok choy',q:'2 bunches',c:'Fruit & veg'},{n:'Rice noodles',q:'1 pkt',c:'Pantry'},{n:'Chicken stock',q:'500ml',c:'Pantry'}]},
+{id:'d-ragu',slot:'dinner',name:'Slow beef ragu + pasta',mins:12,base:'slow-beef',
+ blurb:'The second life of the slow cooker beef. Shredded through pasta it reads as a different meal entirely.',
+ portions:[{n:'Shredded beef',a:'130g',c:250,p:33},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'120g',c:45,p:2},{n:'Parmesan',a:'8g',c:32,p:3}],
+ steps:['Beef and its liquid into a pan with passata and grated carrot. Reduce hard, 8 min.','Pasta on at the same time. Weigh yours dry.','Toss with a splash of pasta water so it clings.'],
+ buy:[{n:'Pasta',q:'500g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}]},
+{id:'d-friedrice',slot:'dinner',name:'Chicken fried rice',mins:12,base:'poached-chicken',
+ blurb:'Uses the poached chicken and whatever veg is going soft. The fastest way to clear the crisper drawer.',
+ portions:[{n:'Poached chicken',a:'120g',c:200,p:37},{n:'Rice, cooked and cold',a:'130g',c:170,p:3},{n:'Egg',a:'1',c:72,p:6},{n:'Peas, carrot, spring onion',a:'120g',c:55,p:3},{n:'Soy and sesame oil',a:'1 tbsp',c:55,p:1}],
+ steps:['Egg scrambled first, out of the pan, set aside.','Veg hard and fast, then rice, pressed down and left to catch.','Chicken and egg back in, soy and sesame at the end off the heat.'],
+ buy:[{n:'Frozen peas',q:'1 bag',c:'Frozen'},{n:'Spring onions',q:'1 bunch',c:'Fruit & veg'},{n:'Sesame oil',q:'1 bottle',c:'Pantry'}]},
+{id:'d-joojeh-wrap',slot:'dinner',name:'Joojeh wraps',mins:15,base:'joojeh',
+ blurb:'Same marinated chicken as the skewers, built at the table. Milan assembling his own is most of the appeal.',
+ portions:[{n:'Joojeh chicken, cooked',a:'130g',c:215,p:31},{n:'Wrap, large',a:'1',c:180,p:6},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5},{n:'Hummus',a:'30g',c:80,p:2},{n:'Salad, pickled onion',a:'plenty',c:25,p:1},{n:'Grilled tomato',a:'1',c:20,p:1}],
+ steps:['Chicken in the air fryer, 200C, 15 min.','Wraps warmed in a dry pan for 20 seconds a side.','Everything on the table, everyone builds their own.'],
+ buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Hummus',q:'1 tub',c:'Dairy & eggs'},{n:'Red onion',q:'2',c:'Fruit & veg'}]},
+{id:'d-prawn',slot:'dinner',name:'Garlic prawn noodles',mins:12,base:null,
+ blurb:'Prawns cook in four minutes, which makes this the fastest dinner in the library after the salmon.',
+ portions:[{n:'Prawns, peeled',a:'180g',c:180,p:36},{n:'Rice noodles, cooked',a:'150g',c:165,p:3},{n:'Garlic, chilli, oil',a:'1 tbsp',c:120,p:0},{n:'Asian greens',a:'150g',c:45,p:3},{n:'Soy and lime',a:'1 tbsp',c:20,p:1}],
+ steps:['Garlic gently in the oil first, do not brown it.','Prawns in, 90 seconds a side, out of the pan the moment they turn.','Greens and noodles in, prawns back, soy and lime off the heat.'],
+ buy:[{n:'Prawns, peeled (fresh or frozen)',q:'600g',c:'Meat & fish'},{n:'Asian greens',q:'2 bunches',c:'Fruit & veg'},{n:'Rice noodles',q:'1 pkt',c:'Pantry'}]},
+{id:'d-dhal',slot:'dinner',name:'Pressure cooker dhal + rice',mins:15,base:null,
+ blurb:'Cheap, high fibre and a genuinely good meatless night. Protein is lower than the other dinners at 31g, so pair it with a high-protein snack that day.',
+ portions:[{n:'Red lentil dhal',a:'200g',c:225,p:13},{n:'Rice, cooked',a:'120g',c:155,p:3},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Boiled egg',a:'1',c:72,p:6},{n:'Spinach and tomato',a:'100g',c:30,p:2}],
+ steps:['Onion, garlic, ginger, cumin and turmeric in the pressure cooker on Saute, 4 min.','200g red lentils and 600ml stock. Pressure cook 8 min, natural release.','Spinach stirred through at the end, lemon over the top.','Rice alongside. Yoghurt on top cools it for Milan.'],
+ buy:[{n:'Red lentils',q:'500g',c:'Pantry'},{n:'Ground cumin, turmeric',q:'1 each',c:'Pantry'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
+/* ---------------- LATE SNACK ---------------- */
+{id:'n-popcorn',slot:'snack2',name:'Air-popped popcorn',mins:4,base:null,
+ blurb:'Thirty grams dry makes a genuinely large bowl. Volume is what you are after at 10pm, not nutrition.',
+ portions:[{n:'Popcorn kernels, air-popped',a:'30g dry',c:115,p:3}],
+ buy:[{n:'Popcorn kernels',q:'1 bag',c:'Pantry'}]},
+{id:'n-grapes',slot:'snack2',name:'Frozen grapes',mins:0,base:null,
+ blurb:'Slow to eat and cold, which is most of the job. Freeze a bunch on Sunday.',
+ portions:[{n:'Frozen grapes',a:'1 cup',c:90,p:1}],
+ buy:[{n:'Grapes',q:'1kg',c:'Fruit & veg'}]},
+{id:'n-yog',slot:'snack2',name:'Protein yoghurt + frozen raspberries',mins:1,base:null,
+ blurb:'The frozen berries make it last twice as long as it should. Best of the late options.',
+ portions:[{n:'Protein yoghurt',a:'170g',c:120,p:19},{n:'Frozen raspberries',a:'50g',c:25,p:1}],
+ buy:[{n:'Frozen raspberries',q:'1 bag',c:'Frozen'}]},
+{id:'n-sticks',slot:'snack2',name:'Veg sticks + tzatziki',mins:1,base:'crunch-box',
+ blurb:'Loud, which is half of what you actually want while you are coding.',
+ portions:[{n:'Cucumber, carrot, capsicum sticks',a:'a big handful',c:60,p:2},{n:'Tzatziki',a:'2 tbsp',c:60,p:2}],
+ buy:[{n:'Tzatziki',q:'1 tub',c:'Dairy & eggs'}]},
+{id:'n-ricecake',slot:'snack2',name:'Rice cakes + vegemite',mins:1,base:null,
+ blurb:'Ninety calories and noisy to eat. Sometimes that is the entire requirement.',
+ portions:[{n:'Rice cakes',a:'2',c:55,p:2},{n:'Vegemite or light cream cheese',a:'thin scrape',c:35,p:1}],
+ buy:[{n:'Rice cakes',q:'1 pkt',c:'Pantry'},{n:'Vegemite',q:'1 jar',c:'Pantry'}]},
+{id:'n-edamame',slot:'snack2',name:'Salted edamame',mins:4,base:null,
+ blurb:'Podding them slows you down, which is the point. Also the only late snack with real protein.',
+ portions:[{n:'Edamame, in pod',a:'100g',c:120,p:11}],
+ buy:[{n:'Frozen edamame',q:'1 bag',c:'Frozen'}]},
+{id:'n-berries',slot:'snack2',name:'Frozen berries + a spoon of yoghurt',mins:1,base:null,
+ blurb:'Eaten half-frozen it behaves like sorbet. Scratches the dessert itch.',
+ portions:[{n:'Frozen mixed berries',a:'120g',c:70,p:1},{n:'Greek yoghurt',a:'50g',c:45,p:5}]}
+];
+
+/* Kindy box components — 2 supplied days a week */
+const KINDY = {
+  morning:[ 'Cut fruit (melon, grapes, apple slices)','Cheese cubes + a few crackers','Yoghurt pouch + a mandarin','Banana + a small handful of sultanas' ],
+  lunch:[ 'Ham and cheese sandwich, cucumber sticks, cherry tomatoes','Chicken and mayo sandwich, carrot sticks, grapes','Egg sandwich, capsicum strips, apple slices','Vegemite sandwich, cheese cubes, cucumber, strawberries','Cheese and tomato wrap, carrot sticks, mandarin' ],
+  afternoon:[ 'Popcorn + a piece of fruit','Muesli bar + cucumber sticks','Crackers with cheese','Yoghurt pouch + blueberries' ]
+};
+
+/* ============================================================
+   APP
+   ============================================================ */
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SLOTS = [
+  {k:'breakfast',lab:'Breakfast'},
+  {k:'snack1',lab:'Snack'},
+  {k:'lunch',lab:'Lunch'},
+  {k:'dinner',lab:'Dinner'},
+  {k:'snack2',lab:'Late snack'}
+];
+const byId = id => MEALS.find(m=>m.id===id);
+const pool = slot => MEALS.filter(m=>m.slot===slot);
+const cal  = m => m ? m.portions.reduce((s,p)=>s+p.c,0) : 0;
+const pro  = m => m ? m.portions.reduce((s,p)=>s+p.p,0) : 0;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+
+/* state holds two weeks. Each: {days:[{slot:mealId}], kindy:[dayIdx], locked:bool} */
+let state = null;
+const wk = () => state[state.view];
+const editable = () => !wk().locked;
+
+/* ---------- generation ---------- */
+function buildWeek(){
+  const days = DAYS.map(()=>({}));
+
+  /* Dinners. Batch proteins are clustered into one half of the week so each
+     batch gets cooked once, not twice: one base feeds Mon–Thu off the Sunday
+     session, another feeds Fri–Sun off the Wednesday top-up. The remaining
+     three nights are cook-fresh or bought. */
+  const dinners = pool('dinner');
+  const bought  = dinners.find(d=>d.id==='d-bought');
+  const availBases = shuffle([...new Set(dinners.filter(d=>d.base&&PREP[d.base]).map(d=>d.base))]);
+
+  const draw = (bases, want) => {           // take `want` dinners from as few bases as possible
+    const out=[], used=new Set();
+    for(const b of bases){
+      if(out.length>=want) break;
+      const ds = shuffle(dinners.filter(d=>d.base===b));
+      if(!ds.length) continue;
+      out.push(...ds.slice(0, want-out.length));
+      used.add(b);
+    }
+    return {out, used};
+  };
+
+  const earlyDraw = draw(availBases, 2);
+  const lateDraw  = draw(availBases.filter(b=>!earlyDraw.used.has(b)), 2);
+
+  const earlyDays = shuffle([0,1,2,3]);
+  const lateDays  = shuffle([4,5,6]);
+  const taken = new Set();
+  earlyDraw.out.forEach((d,i)=>{ days[earlyDays[i]].dinner = d.id; taken.add(earlyDays[i]); });
+  lateDraw.out.forEach((d,i)=>{ days[lateDays[i]].dinner = d.id; taken.add(lateDays[i]); });
+
+  const usedIds = new Set([...earlyDraw.out, ...lateDraw.out].map(d=>d.id));
+  const fillers = shuffle([
+    bought,
+    ...shuffle(dinners.filter(d=>d.id!=='d-bought' && !usedIds.has(d.id) && !d.base))
+  ]);
+  let fi=0;
+  DAYS.forEach((_,i)=>{ if(!taken.has(i)) days[i].dinner = (fillers[fi++] || pick(dinners)).id; });
+
+  /* Breakfast. Oats are batched, so they repeat — but never on consecutive
+     mornings, and never outside Mon–Fri. Two adjacent oat days is the fastest
+     way to stop wanting oats. */
+  const oats = 'b-oats';
+  const want = 2 + Math.round(Math.random());          // 2 or 3 jars
+  let oatDays = [];
+  for(let attempt=0; attempt<8 && oatDays.length<want; attempt++){
+    const trial = [];
+    for(const d of shuffle([0,1,2,3,4])){
+      if(trial.length>=want) break;
+      if(trial.some(x=>Math.abs(x-d)===1)) continue;   // no two mornings running
+      trial.push(d);
+    }
+    if(trial.length>oatDays.length) oatDays = trial;
+  }
+  const quickB = pool('breakfast').filter(m=>m.id!==oats && !m.weekend);
+  const pancakeDay = pick([5,6]);
+  let lastB = null;
+  DAYS.forEach((_,i)=>{
+    if(oatDays.includes(i)){ days[i].breakfast = oats; lastB = oats; return; }
+    if(i === pancakeDay){ days[i].breakfast = 'b-pancakes'; lastB = 'b-pancakes'; return; }
+    const options = quickB.filter(m=>m.id!==lastB);
+    const chosenB = pick(options.length ? options : quickB);
+    days[i].breakfast = chosenB.id; lastB = chosenB.id;
+  });
+
+  /* Lunch. A lunch that leans on a batch (beef wraps, chicken sandwich) is only
+     allowed on a day already covered by that batch — otherwise it would force a
+     second cook of the same thing. Everything else falls back to a base-free
+     sandwich or the previous night's leftovers. */
+  const sessionOf = (base, dayIdx) => ((dayIdx+1) <= (PREP[base].keeps||4)) ? 'sun' : 'mid';
+  const covered = {};                                  // base -> Set of sessions already being cooked
+  const noteCover = (base, dayIdx) => { (covered[base] = covered[base] || new Set()).add(sessionOf(base, dayIdx)); };
+  DAYS.forEach((_,i)=> SLOTS.filter(s=>s.k!=='lunch').forEach(s=>{
+    const m = byId(days[i][s.k]);
+    if(m && m.base && PREP[m.base]) noteCover(m.base, i);
+  }));
+
+  const plainLunches  = shuffle(pool('lunch').filter(m=>m.id!=='l-reheat' && !m.base));
+  const batchLunches  = shuffle(pool('lunch').filter(m=>m.id!=='l-reheat' && m.base));
+  let li=0, lastL=null;
+  DAYS.forEach((_,i)=>{
+    const prevDinner = i>0 ? byId(days[i-1].dinner) : null;
+    if(prevDinner && prevDinner.base && PREP[prevDinner.base] && lastL!=='l-reheat' && Math.random()<0.5){
+      days[i].lunch = 'l-reheat';
+    } else {
+      const free = batchLunches.filter(m =>
+        m.id!==lastL && covered[m.base] && covered[m.base].has(sessionOf(m.base, i)));
+      const chosenL = (free.length && Math.random()<0.6)
+        ? pick(free)
+        : plainLunches[li++ % plainLunches.length];
+      days[i].lunch = chosenL.id;
+      if(chosenL.base) noteCover(chosenL.base, i);
+    }
+    lastL = days[i].lunch;
+  });
+
+  const s1 = shuffle(pool('snack1'));
+  const s2 = shuffle(pool('snack2'));
+  DAYS.forEach((_,i)=>{ days[i].snack1 = s1[i%s1.length].id; days[i].snack2 = s2[i%s2.length].id; });
+
+  return days;
+}
+
+function generate(){
+  if(!editable()) return;
+  wk().days = buildWeek();
+  save(); render();
+}
+
+/* ---------- persistence: artifact storage, else the browser's own ---------- */
+const KEY = 'weekservice:v2';
+const store = {
+  async get(){
+    try{ if(window.storage){ const r = await window.storage.get(KEY); return r && r.value; } }catch(e){}
+    try{ return localStorage.getItem(KEY); }catch(e){ return null; }
+  },
+  async set(v){
+    try{ if(window.storage){ await window.storage.set(KEY, v); return; } }catch(e){}
+    try{ localStorage.setItem(KEY, v); }catch(e){}
+  }
+};
+async function save(){ await store.set(JSON.stringify(state)); }
+
+/* ---------- share link: the whole plan, encoded in the URL ---------- */
+function encodeState(){
+  const packWeek = w => ({ d: w.days.map(d=>SLOTS.map(s=>d[s.k])), k: w.kindy, l: w.locked?1:0 });
+  const payload = { c: packWeek(state.current), n: packWeek(state.next) };
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+function decodeState(str){
+  const p = JSON.parse(decodeURIComponent(escape(atob(str))));
+  const unpack = w => ({
+    days: w.d.map(row=>{ const o={}; SLOTS.forEach((s,i)=>o[s.k]=row[i]); return o; }),
+    kindy: w.k || [], locked: !!w.l
+  });
+  return { current: unpack(p.c), next: unpack(p.n), view:'current' };
+}
+function shareLink(){
+  const base = location.href.split('#')[0];
+  return base + '#w=' + encodeState();
+}
+
+async function load(){
+  const hash = location.hash;
+  if(hash.startsWith('#w=')){
+    try{
+      state = decodeState(hash.slice(3));
+      render(true);
+      return;
+    }catch(e){ /* fall through to normal load */ }
+  }
+  const raw = await store.get();
+  if(raw){
+    try{ state = JSON.parse(raw); }catch(e){ state = null; }
+  }
+  if(!state || !state.current){
+    state = {
+      current: { days: buildWeek(), kindy:[3,4], locked:true },
+      next:    { days: buildWeek(), kindy:[3,4], locked:false },
+      view: 'current'
+    };
+    await save();
+  }
+  if(!state.view) state.view='current';
+  render();
+}
+
+/* ---------- prep derivation (per viewed week) ----------
+   Sunday session is day 0; Monday is day 1 ... Sunday is day 7.
+   The Wednesday top-up is day 3.
+   An item is prepped at the latest session that still lands inside its
+   shelf life for the day it is needed. Long-keeping things (boiled eggs)
+   get done once on Sunday; short-keeping things (cut fruit, raw marinade)
+   move to Wednesday when they are only needed late in the week. */
+const SUNDAY_DAY = 0, MIDWEEK_DAY = 3;
+
+function prepPlan(){
+  const w = wk();
+  const need = {};                                     // baseId -> Set of day numbers 1..7
+  const mark = (base, dayIdx) => { (need[base] = need[base] || new Set()).add(dayIdx+1); };
+  w.days.forEach((d,i)=> SLOTS.forEach(s=>{
+    const m = byId(d[s.k]);
+    if(m && m.base && PREP[m.base]) mark(m.base, i);
+  }));
+  w.kindy.forEach(i=> mark('crunch-box', i));
+
+  const sunday=[], midweek=[];
+  Object.keys(need).forEach(b=>{
+    const keeps = PREP[b].keeps || 4;
+    const days = [...need[b]].sort((a,z)=>a-z);
+    const sun = days.filter(d => d - SUNDAY_DAY  <= keeps);
+    const mid = days.filter(d => d - SUNDAY_DAY  >  keeps);
+    if(sun.length) sunday.push({id:b, days:sun, firstDay:sun[0]-1, keeps, mins:PREP[b].mins});
+    if(mid.length) midweek.push({id:b, days:mid, firstDay:mid[0]-1, keeps,
+                                 /* already made on Sunday? then Wednesday is just a top-up */
+                                 mins: (sun.length && PREP[b].topUpMins) ? PREP[b].topUpMins : PREP[b].mins,
+                                 topUp: !!(sun.length && PREP[b].topUpMins),
+                                 late: mid.filter(d => d - MIDWEEK_DAY > keeps)});
+  });
+  const bySoonest = (a,b)=>a.firstDay-b.firstDay;
+  const t = arr => arr.reduce((s,x)=>s+x.mins,0);
+  return { sunday:sunday.sort(bySoonest), midweek:midweek.sort(bySoonest),
+           sundayMins:t(sunday), midweekMins:t(midweek) };
+}
+
+/* "Mon–Thu" / "Thu, Fri" style coverage label for a session */
+function coverLabel(list){
+  const all = [...new Set(list.flatMap(x=>x.days))].sort((a,b)=>a-b);
+  if(!all.length) return '';
+  const names = all.map(d=>DAYS[d-1]);
+  const contiguous = all.every((d,i)=> i===0 || d===all[i-1]+1);
+  return (contiguous && names.length>2) ? `${names[0]}\u2013${names[names.length-1]}` : names.join(', ');
+}
+
+/* ---------- render ---------- */
+let sharedView = false;
+
+function render(isShared){
+  if(isShared!==undefined) sharedView = isShared;
+  const w = wk();
+  const locked = w.locked;
+
+  /* tabs + lock */
+  document.getElementById('tabCurrent').setAttribute('aria-selected', state.view==='current');
+  document.getElementById('tabNext').setAttribute('aria-selected', state.view==='next');
+  document.getElementById('tabCurrent').innerHTML = 'This week' + (state.current.locked?'<span class="pin">&#128274;</span>':'');
+  document.getElementById('tabNext').innerHTML = 'Next week' + (state.next.locked?'<span class="pin">&#128274;</span>':'');
+  const lockBtn = document.getElementById('lockBtn');
+  lockBtn.textContent = locked ? 'Locked' : 'Lock this week';
+  lockBtn.classList.toggle('on', locked);
+  document.getElementById('lockNote').textContent = locked ? 'Read only' : 'Editable';
+  document.getElementById('gen').disabled = locked;
+  document.getElementById('roll').style.display = state.view==='next' ? '' : 'none';
+
+  /* banner */
+  const banner = document.getElementById('banner');
+  if(sharedView){
+    banner.innerHTML = `<div class="locked-banner"><b>Shared plan.</b> You are looking at a plan someone sent you. Changes here stay on this device.</div>`;
+  } else if(locked){
+    banner.innerHTML = `<div class="locked-banner"><b>${state.view==='current'?'This week':'Next week'} is locked</b> &mdash; no generating, no swapping. Tap <b>Locked</b> above to make changes, or switch to <b>Next week</b>, which is editable.</div>`;
+  } else banner.innerHTML = '';
+
+  /* targets rail */
+  document.getElementById('targets').innerHTML =
+    SLOTS.map(s=>`<div class="t-cell"><div class="t-lab">${s.lab}</div><div class="t-val mono">${TARGETS[s.k]}<em>kcal</em></div></div>`).join('')
+    + `<div class="t-cell total"><div class="t-lab">Daily target</div><div class="t-val mono">${DAILY.cal}<em>kcal</em> &middot; ${DAILY.protein}<em>g pro</em></div></div>`;
+
+  const plan = prepPlan();
+
+  /* prep + tools rail, deliberately outside the seven days */
+  const midOn = plan.midweek.length > 0;
+  const rail = document.getElementById('rail');
+  rail.innerHTML = `
+    <div class="rail-lab">Prep</div>
+    <button class="prep-card ${plan.sunday.length?'':'quiet'}" data-prep="sunday">
+      <span><span class="pc-when">Before Monday</span>
+      <span class="pc-note">${plan.sunday.length ? `${plan.sunday.length} task${plan.sunday.length>1?'s':''} &middot; covers ${coverLabel(plan.sunday)}` : 'Nothing to prep this week'}</span></span>
+      <span class="pc-mins"><b class="mono">${plan.sundayMins}</b><span>min</span></span>
+    </button>
+    <button class="prep-card ${midOn?'':'quiet'}" data-prep="midweek">
+      <span><span class="pc-when">Wednesday top-up</span>
+      <span class="pc-note">${midOn ? `${plan.midweek.length} task${plan.midweek.length>1?'s':''} &middot; covers ${coverLabel(plan.midweek)}` : 'Not needed this week'}</span></span>
+      <span class="pc-mins"><b class="mono">${plan.midweekMins}</b><span>min</span></span>
+    </button>
+    <button class="prep-card tool" data-tool="shop">
+      <span><span class="pc-when">Shopping</span><span class="pc-note">For this week's meals</span></span>
+    </button>
+    <button class="prep-card tool" data-tool="kindy">
+      <span><span class="pc-when">Kindy</span><span class="pc-note">${w.kindy.length} supplied day${w.kindy.length===1?'':'s'}</span></span>
+    </button>`;
+  rail.querySelectorAll('[data-prep]').forEach(b=>b.onclick=()=>openPrep(b.dataset.prep));
+  rail.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=> b.dataset.tool==='shop' ? openShop() : openKindy());
+
+  /* board */
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  w.days.forEach((d,i)=>{
+    const meals = SLOTS.map(s=>byId(d[s.k]));
+    const total = meals.reduce((s,m)=>s+cal(m),0);
+    const protein = meals.reduce((s,m)=>s+pro(m),0);
+    const isKindy = w.kindy.includes(i);
+    const diff = total - DAILY.cal;
+    const cls = Math.abs(diff)<=90 ? '' : (diff>0 ? 'over':'under');
+
+    const el = document.createElement('section');
+    el.className='day';
+    el.innerHTML = `
+      <div class="day-head">
+        <span class="day-name">${DAYS[i]}</span>
+        <button class="kindy-tag ${isKindy?'':'off'}" data-kindy="${i}" ${locked?'disabled':''} title="Toggle a kindy-box day">Kindy</button>
+      </div>
+      <div class="bar">${meals.map(m=>`<i style="width:${total?(cal(m)/total*100):0}%"></i>`).join('')}</div>
+      <div class="slots">
+        ${SLOTS.map((s,si)=>{
+          const m = meals[si];
+          return `<div style="position:relative">
+            <button class="slot" data-open="${i}:${s.k}">
+              <span class="slot-lab">${s.lab}${m&&m.mins?`<span class="mins mono">${m.mins}m</span>`:''}</span>
+              <span class="slot-name">${m?m.name:'&mdash;'}</span>
+              <span class="slot-nums"><span class="kcal mono">${cal(m)}<em>kcal</em></span><span class="pro mono">${pro(m)}g</span></span>
+            </button>
+            ${locked?'':`<button class="swap" data-swap="${i}:${s.k}" title="Swap this meal" aria-label="Swap ${s.lab}">&#8646;</button>`}
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="day-foot">
+        <span class="day-tot mono ${cls}">${total}<span style="font-size:9px;color:var(--muted)"> kcal</span></span>
+        <span class="day-pro mono">${protein}g protein</span>
+      </div>`;
+    board.appendChild(el);
+  });
+
+  board.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{const[d,s]=b.dataset.open.split(':');openMeal(+d,s);});
+  board.querySelectorAll('[data-swap]').forEach(b=>b.onclick=e=>{e.stopPropagation();const[d,s]=b.dataset.swap.split(':');openSwap(+d,s);});
+  board.querySelectorAll('[data-kindy]').forEach(b=>b.onclick=()=>{
+    if(!editable()) return;
+    const i=+b.dataset.kindy;
+    wk().kindy = wk().kindy.includes(i) ? wk().kindy.filter(x=>x!==i) : [...wk().kindy,i].sort();
+    save(); render();
+  });
+}
+
+/* ---------- drawer ---------- */
+const drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim');
+function showDrawer(eyebrow,title,meta,body){
+  document.getElementById('dEyebrow').textContent=eyebrow;
+  document.getElementById('dTitle').textContent=title;
+  document.getElementById('dMeta').innerHTML=meta;
+  document.getElementById('dBody').innerHTML=body;
+  document.getElementById('dBody').scrollTop=0;
+  drawer.classList.add('on'); scrim.classList.add('on');
+  document.getElementById('dClose').focus();
+}
+function closeDrawer(){ drawer.classList.remove('on'); scrim.classList.remove('on'); }
+document.getElementById('dClose').onclick=closeDrawer;
+scrim.onclick=closeDrawer;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDrawer(); });
+
+function openMeal(dayIdx, slotKey){
+  const m = byId(wk().days[dayIdx][slotKey]);
+  if(!m) return;
+  const c=cal(m), p=pro(m), t=TARGETS[slotKey], diff=c-t;
+  const slotLab = SLOTS.find(s=>s.k===slotKey).lab;
+
+  const meta = `
+    <div>Your portion<b class="mono">${c} kcal</b></div>
+    <div>Protein<b class="mono">${p}g</b></div>
+    <div>Hands-on<b class="mono">${m.mins} min</b></div>
+    ${m.base?`<div>Needs prep<b style="font-size:12px">${PREP[m.base].name}</b></div>`:''}`;
+
+  let body = editable()
+    ? `<button class="swap-cta" id="swapCta">&#8646; Swap this meal</button>`
+    : `<div class="foot-note" style="margin:0 0 18px">${state.view==='current'?'This week':'Next week'} is locked, so meals can't be changed. Unlock it at the top to swap this one.</div>`;
+  body += `<p class="d-blurb">${m.blurb}</p>`;
+  body += `<div class="sec"><div class="sec-lab">Your portion <span>weigh the protein and the carb</span></div>`;
+  m.portions.forEach(x=>{
+    body += `<div class="port"><span class="port-n">${x.n}</span><span class="port-a mono">${x.a}</span><span class="port-c mono">${x.c} kcal</span></div>`;
+  });
+  body += `<div class="port sum"><span class="port-n">Total</span><span class="port-a mono">${p}g pro</span><span class="port-c mono">${c} kcal</span></div>`;
+  body += `<p class="budget-note ${diff>60?'over':''}">Budget for ${slotLab.toLowerCase()} is <b class="mono">${t} kcal</b>. This is <b class="mono">${diff>0?'+':''}${diff}</b>${Math.abs(diff)<=60?', which is inside the noise.':diff>0?' &mdash; trim the carb or take it off the late snack.':', so you have room elsewhere.'}</p></div>`;
+
+  if(m.steps){
+    body += `<div class="sec"><div class="sec-lab">Method <span>${m.mins} min</span></div><ol class="steps">${m.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>`;
+  } else {
+    body += `<div class="sec"><div class="sec-lab">Method</div><p class="empty-note">Assembly only. Nothing to cook.</p></div>`;
+  }
+  if(m.base){
+    const pr=PREP[m.base];
+    body += `<div class="sec"><div class="sec-lab">Depends on prep <span>${pr.mins} min &middot; ${pr.feeds}</span></div>
+      <div class="task"><div class="task-n">${pr.name}</div><ol>${pr.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div></div>`;
+  }
+  body += `<div class="sec"><div class="sec-lab">The rest of the table</div>
+    <p class="d-blurb" style="margin:0">Roshani and Milan eat the same components, unweighed. Serve everything separately rather than mixed and they can take what they want without you cooking twice.</p></div>`;
+
+  showDrawer(`${DAYS[dayIdx]} · ${slotLab}`, m.name, meta, body);
+  const cta = document.getElementById('swapCta');
+  if(cta) cta.onclick = ()=> openSwap(dayIdx, slotKey);
+}
+
+function openSwap(dayIdx, slotKey){
+  if(!editable()) return;
+  const cur = wk().days[dayIdx][slotKey];
+  const slotLab = SLOTS.find(s=>s.k===slotKey).lab;
+  const body = `<p class="d-blurb">Pick a replacement. The prep list and shopping list update straight away.</p>` +
+    pool(slotKey).map(m=>{
+      const dep = m.base?`<i>needs ${PREP[m.base].name.toLowerCase()}</i>`:`<i>no prep needed</i>`;
+      return `<button class="alt ${m.id===cur?'cur':''}" data-pick="${m.id}">
+        <span class="alt-n">${m.name}${dep}</span>
+        <span class="alt-c mono">${cal(m)} kcal<br>${pro(m)}g pro</span></button>`;
+    }).join('');
+  showDrawer(`${DAYS[dayIdx]} · swap`, slotLab, `<div>Budget<b class="mono">${TARGETS[slotKey]} kcal</b></div>`, body);
+  document.getElementById('dBody').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
+    wk().days[dayIdx][slotKey]=b.dataset.pick; save(); render(); closeDrawer();
+  });
+}
+
+function openPrep(which){
+  const plan = prepPlan();
+  const list = which==='sunday'?plan.sunday:plan.midweek;
+  const mins = which==='sunday'?plan.sundayMins:plan.midweekMins;
+  const title = which==='sunday'?'Before Monday':'Wednesday top-up';
+  const w = wk();
+
+  let body = which==='sunday'
+    ? `<p class="d-blurb">The Sunday <em>before</em> this week starts. Run these in parallel &mdash; the pressure cooker, the oven and your hands are three separate workstreams.</p>`
+    : `<p class="d-blurb">Cooked protein is good for about four days and cut fruit for three, so this is the short Wednesday top-up for the back half of the week.</p>`;
+
+  if(!list.length){
+    body += `<p class="empty-note">Nothing needed here. Everything this ${which==='sunday'?'session would cover keeps fine, or cooks fresh':'half of the week keeps from Sunday, or cooks fresh'}.</p>`;
+  } else {
+    body += list.map(x=>{
+      const p=PREP[x.id];
+      const users = [];
+      w.days.forEach((d,i)=>{
+        if(!x.days.includes(i+1)) return;
+        SLOTS.forEach(s=>{ const m=byId(d[s.k]); if(m&&m.base===x.id) users.push(`${DAYS[i]} ${s.lab.toLowerCase()}`); });
+        if(x.id==='crunch-box' && w.kindy.includes(i)) users.push(`${DAYS[i]} kindy box`);
+      });
+      const lastDay = x.days[x.days.length-1];
+      const age = lastDay - (which==='sunday'?SUNDAY_DAY:MIDWEEK_DAY);
+      const warn = (x.late && x.late.length)
+        ? `<div class="foot-note" style="margin-top:8px">Needed ${x.late.map(d=>DAYS[d-1]).join(' and ')}, which is past its ${x.keeps}-day keep even from Wednesday. Cook this one fresh on the day instead.</div>` : '';
+      return `<div class="task">
+        <div class="task-n">${p.name}${x.topUp?' <span class="chip" style="vertical-align:middle">top-up</span>':''}</div>
+        <div class="task-m mono">${x.mins} min &middot; keeps ${x.keeps} days &middot; oldest serve ${age} day${age===1?'':'s'}</div>
+        <ol>${p.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        <div style="margin-top:7px">${users.map(u=>`<span class="chip">${u}</span>`).join('')}</div>
+        ${warn}
+      </div>`;
+    }).join('');
+  }
+  if(which==='sunday'){
+    body += `<div class="foot-note">Cool everything fully before it goes in a container. Warm food in a sealed box is how a Sunday cook turns into a Wednesday stomach ache.</div>`;
+  }
+  showDrawer(state.view==='current'?'This week':'Next week', title, `<div>Hands-on<b class="mono">${mins} min</b></div><div>Tasks<b class="mono">${list.length}</b></div>`, body);
+}
+
+function openShop(){
+  const w = wk();
+  const items = new Map();
+  const add = b => { const k=b.n.toLowerCase(); if(!items.has(k)) items.set(k,{...b, times:1}); else items.get(k).times++; };
+  const seenPrep = new Set();
+  w.days.forEach(d=>SLOTS.forEach(s=>{
+    const m=byId(d[s.k]); if(!m) return;
+    (m.buy||[]).forEach(add);
+    if(m.base && PREP[m.base] && !seenPrep.has(m.base)){ seenPrep.add(m.base); (PREP[m.base].buy||[]).forEach(add); }
+  }));
+  if(w.kindy.length && !seenPrep.has('crunch-box')) (PREP['crunch-box'].buy||[]).forEach(add);
+
+  const cats = ['Meat & fish','Fruit & veg','Dairy & eggs','Bakery','Frozen','Pantry'];
+  let body = `<p class="d-blurb">Built from ${state.view==='current'?'this week':'next week'}'s meals and their prep. Pantry items are listed even if you already have them &mdash; glance down the list rather than trusting memory.</p>`;
+  cats.forEach(c=>{
+    const rows=[...items.values()].filter(x=>x.c===c);
+    if(!rows.length) return;
+    body += `<div class="cat-h">${c}</div><ul class="plain">` +
+      rows.map(r=>`<li>${r.n}<b class="mono">${r.q}${r.times>1?` &times;${r.times}`:''}</b></li>`).join('') + `</ul>`;
+  });
+  showDrawer(state.view==='current'?'This week':'Next week', 'Shopping list', `<div>Lines<b class="mono">${items.size}</b></div>`, body);
+}
+
+function openKindy(){
+  const w = wk();
+  if(!w.kindy.length){
+    showDrawer('Kindy','Kindy boxes','', `<p class="empty-note">No kindy days selected. Tap the Kindy tag on a day to mark the days you supply food.</p>`);
+    return;
+  }
+  const l=shuffle(KINDY.lunch), m=shuffle(KINDY.morning), a=shuffle(KINDY.afternoon);
+  let body = `<p class="d-blurb">Assembled in five minutes on the morning, because the cutting was done on Sunday. Milan is a good eater, so this is about keeping variety up rather than winning him over.</p>`;
+  w.kindy.forEach((di,n)=>{
+    body += `<div class="sess"><div class="sess-h"><h3>${DAYS[di]}</h3><span>morning tea &middot; lunch &middot; afternoon tea</span></div>
+      <ul class="plain">
+        <li>Morning tea<b>${m[n%m.length]}</b></li>
+        <li>Lunch<b>${l[n%l.length]}</b></li>
+        <li>Afternoon tea<b>${a[n%a.length]}</b></li>
+      </ul></div>`;
+  });
+  body += `<div class="foot-note">Cut the fruit and veg for these in the same fifteen minutes as your own crunch box. Same knife, same board.</div>`;
+  showDrawer('Supplied days','Kindy boxes',`<div>Days<b class="mono">${w.kindy.length}</b></div>`, body);
+}
+
+function openShare(){
+  const url = shareLink();
+  const body = `<p class="d-blurb">This link carries both weeks inside it. Send it to Roshani and she will see exactly this plan &mdash; no account, no login. Generate a fresh link whenever the plan changes.</p>
+    <div class="share-url" id="urlBox">${url}</div>
+    <button class="copy-btn" id="copyBtn">Copy link</button>
+    <div class="foot-note">The link is long because the whole plan travels in it. It works fine in a message or an email, and it will not fit in a QR code.</div>`;
+  showDrawer('Two devices','Share this plan','',body);
+  document.getElementById('copyBtn').onclick=async()=>{
+    const b=document.getElementById('copyBtn');
+    try{ await navigator.clipboard.writeText(url); b.textContent='Copied'; }
+    catch(e){
+      const r=document.createRange(); r.selectNodeContents(document.getElementById('urlBox'));
+      const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      b.textContent='Selected — copy it';
+    }
+    setTimeout(()=>b.textContent='Copy link',2200);
+  };
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify({TARGETS,DAILY,PREP,MEALS,KINDY,state},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='meal-data.json'; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ---------- controls ---------- */
+document.getElementById('tabCurrent').onclick=()=>{ state.view='current'; save(); render(false); };
+document.getElementById('tabNext').onclick=()=>{ state.view='next'; save(); render(false); };
+
+document.getElementById('lockBtn').onclick=()=>{ wk().locked = !wk().locked; save(); render(); };
+
+/* Generate needs a second tap. No dialog, because dialogs are awful on a phone. */
+let armed=false, armTimer=null;
+const genBtn=document.getElementById('gen');
+genBtn.onclick=()=>{
+  if(!editable()) return;
+  if(!armed){
+    armed=true; genBtn.classList.add('confirming');
+    genBtn.textContent='Tap again to replace';
+    armTimer=setTimeout(()=>{ armed=false; genBtn.classList.remove('confirming'); genBtn.textContent='Generate week'; },3500);
+    return;
+  }
+  clearTimeout(armTimer); armed=false;
+  genBtn.classList.remove('confirming'); genBtn.textContent='Generate week';
+  generate();
+};
+
+/* Roll next week into current, then build a fresh next week. */
+let rollArmed=false, rollTimer=null;
+const rollBtn=document.getElementById('roll');
+rollBtn.onclick=()=>{
+  if(!rollArmed){
+    rollArmed=true; rollBtn.classList.add('confirming'); rollBtn.textContent='Tap again to confirm';
+    rollTimer=setTimeout(()=>{ rollArmed=false; rollBtn.classList.remove('confirming'); rollBtn.textContent='Start new week'; },3500);
+    return;
+  }
+  clearTimeout(rollTimer); rollArmed=false;
+  rollBtn.classList.remove('confirming'); rollBtn.textContent='Start new week';
+  state.current = { days: state.next.days, kindy: state.next.kindy, locked:true };
+  state.next    = { days: buildWeek(), kindy: state.next.kindy.slice(), locked:false };
+  state.view='current';
+  save(); render();
+};
+
+document.getElementById('share').onclick=openShare;
+document.getElementById('exp').onclick=exportData;
+
+load();
+</script>
+</body>
+</html>

@@ -387,7 +387,7 @@ ul.plain li b{margin-left:auto;font-weight:500;color:var(--muted);font-size:12px
   <div class="head-top">
     <div>
       <h1>Week <span>Service</span></h1>
-      <p class="sub">Poya · 1 measured plate, 3 people eating</p>
+      <p class="sub">Poya · 1 measured plate, 3 people eating <span id="syncChip"></span></p>
     </div>
     <div class="actions">
       <button class="btn btn-go" id="gen">Generate week</button>
@@ -700,6 +700,26 @@ const KINDY = {
 /* ============================================================
    APP
    ============================================================ */
+/* ============================================================
+   OPTIONAL CLOUD SYNC — fill these two in to share the plan
+   between devices. Leave url blank and the app works exactly
+   as before, saving only in this browser.
+
+   Setup (about 10 minutes, free):
+   1. console.firebase.google.com → Add project (skip Analytics)
+   2. Build → Realtime Database → Create database
+      Pick a region near you (asia-southeast1 is closest to AU)
+      Start in *locked* mode
+   3. Rules tab → paste this, replacing the path to match below:
+        { "rules": { "plan-CHANGE-ME": { ".read": true, ".write": true } } }
+   4. Copy the database URL from the Data tab into `url` below
+   5. Change `path` to something long and unguessable
+   ============================================================ */
+const SYNC = {
+  url:  'https://meal-planner-28580-default-rtdb.asia-southeast1.firebasedatabase.app/',                       // e.g. 'https://xxxx-default-rtdb.asia-southeast1.firebasedatabase.app'
+  path: 'plan-40151e08-1170-490b-acd1-0f0368db0c9f'          // must match the rules above; treat it like a password
+};
+
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SLOTS = [
   {k:'breakfast',lab:'Breakfast'},
@@ -831,19 +851,48 @@ function generate(){
   save(); render();
 }
 
-/* ---------- persistence: artifact storage, else the browser's own ---------- */
+/* ---------- persistence ----------
+   Local storage is always written, so the app still works offline and
+   the plan survives a dropped connection. When SYNC is configured the
+   same payload goes to the shared database, and whichever device saved
+   last wins — fine for two people who are not editing simultaneously. */
 const KEY = 'weekservice:v2';
-const store = {
-  async get(){
-    try{ if(window.storage){ const r = await window.storage.get(KEY); return r && r.value; } }catch(e){}
-    try{ return localStorage.getItem(KEY); }catch(e){ return null; }
-  },
-  async set(v){
-    try{ if(window.storage){ await window.storage.set(KEY, v); return; } }catch(e){}
-    try{ localStorage.setItem(KEY, v); }catch(e){}
-  }
+const cloudOn = () => !!SYNC.url;
+const cloudURL = () => `${SYNC.url.replace(/\/$/,'')}/${SYNC.path}.json`;
+let syncStatus = cloudOn() ? 'connecting' : 'local';
+
+const local = {
+  get(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } },
+  set(v){ try{ localStorage.setItem(KEY, v); }catch(e){} }
 };
-async function save(){ await store.set(JSON.stringify(state)); }
+
+async function cloudGet(){
+  if(!cloudOn()) return null;
+  try{
+    const r = await fetch(cloudURL(), {cache:'no-store'});
+    if(!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    syncStatus = 'ok';
+    return (j && j.payload) ? j.payload : null;
+  }catch(e){ syncStatus = 'offline'; return null; }
+}
+async function cloudSet(v){
+  if(!cloudOn()) return;
+  try{
+    const r = await fetch(cloudURL(), {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ payload:v, at: Date.now() })
+    });
+    syncStatus = r.ok ? 'ok' : 'offline';
+  }catch(e){ syncStatus = 'offline'; }
+}
+
+async function save(){
+  const v = JSON.stringify(state);
+  local.set(v);
+  await cloudSet(v);
+  paintSync();
+}
 
 /* ---------- share link: the whole plan, encoded in the URL ---------- */
 function encodeState(){
@@ -867,16 +916,14 @@ function shareLink(){
 async function load(){
   const hash = location.hash;
   if(hash.startsWith('#w=')){
-    try{
-      state = decodeState(hash.slice(3));
-      render(true);
-      return;
-    }catch(e){ /* fall through to normal load */ }
+    try{ state = decodeState(hash.slice(3)); render(true); return; }
+    catch(e){ /* fall through to normal load */ }
   }
-  const raw = await store.get();
-  if(raw){
-    try{ state = JSON.parse(raw); }catch(e){ state = null; }
-  }
+
+  let raw = await cloudGet();          // shared plan wins when it exists
+  if(!raw) raw = local.get();
+  if(raw){ try{ state = JSON.parse(raw); }catch(e){ state = null; } }
+
   if(!state || !state.current){
     state = {
       current: { days: buildWeek(), kindy:[3,4], locked:true },
@@ -887,6 +934,18 @@ async function load(){
   }
   if(!state.view) state.view='current';
   render();
+
+  /* Coming back to the tab picks up anything the other person changed. */
+  if(cloudOn()){
+    window.addEventListener('focus', async ()=>{
+      const remote = await cloudGet();
+      if(!remote) { paintSync(); return; }
+      if(remote !== JSON.stringify(state)){
+        try{ state = JSON.parse(remote); render(); }catch(e){}
+      }
+      paintSync();
+    });
+  }
 }
 
 /* ---------- prep derivation (per viewed week) ----------
@@ -939,8 +998,22 @@ function coverLabel(list){
 /* ---------- render ---------- */
 let sharedView = false;
 
+function paintSync(){
+  const el = document.getElementById('syncChip');
+  if(!el) return;
+  const map = {
+    local:      ['This device only', '#7E9695'],
+    connecting: ['Connecting\u2026',  '#7E9695'],
+    ok:         ['Synced',           '#6FCF97'],
+    offline:    ['Offline \u2014 saved here', '#E0A008']
+  };
+  const [text,color] = map[syncStatus] || map.local;
+  el.innerHTML = `<span style="color:${color}">&bull; ${text}</span>`;
+}
+
 function render(isShared){
   if(isShared!==undefined) sharedView = isShared;
+  paintSync();
   const w = wk();
   const locked = w.locked;
 

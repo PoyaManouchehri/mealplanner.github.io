@@ -110,6 +110,13 @@ appears in **both** sessions — that's correct, not a bug.
 The two prep cards sit in a rail **above** the calendar, deliberately outside the
 seven days, because neither session happens on a day shown in the week.
 
+**Only prep what genuinely benefits from lead time.** A batch earns its place in a
+session by needing hours (a marinade, overnight oats), by being a real cook worth
+doing once (the proteins, the rice, the roast veg), or by being wanted at a moment
+you will not want to work (veg sticks at 10pm). Cutting fruit is none of those — it
+takes two minutes and is better fresh, so fruit is a standing `STAPLES` line rather
+than a prep step, and the kindy box cuts it on the morning.
+
 Rice is the exception that proves the model: it keeps 4 days, so a full week always
 needs two batches. That is a genuine second cook, not a top-up, and it is why rice
 has no `topUpMins`.
@@ -299,9 +306,22 @@ headless harness: extract the `<script>` contents, stub the DOM, and call
 `node test/planner.test.js`. It finds `index.html` or `meal-planner.html`
 automatically, or takes a path as its first argument. `WEEKS=20000` for a longer run.
 
-The static-data checks are the cheap ones and they catch the expensive mistakes:
-a meal eating rice without declaring the base, a prep item with no `storage`, a
-base with exactly one dinner.
+It runs four groups, and they fail for different reasons:
+
+1. **data integrity** — cheap checks that catch the expensive mistakes: a meal
+   eating rice without declaring the base, a prep item with no `storage`, a portion
+   that disagrees with the density of the batch it came from.
+2. **generated weeks** — the invariants above, over thousands of weeks.
+3. **drawers** — opens every drawer for every meal on every day of 100 weeks and
+   asserts only that nothing throws. The generator tests never touch rendering, so
+   a renamed field sails straight past them. Low bar, but it is the bar that catches
+   the mistake that actually gets made.
+4. **state** — share-link round trip, an old saved plan still loading, a locked week
+   refusing to regenerate, rollover promoting next week. These paths are easy to
+   break and nobody notices until a link opens the wrong plan.
+
+Not covered, and worth knowing: whether anything *looks* right, cloud sync, and
+real browser behaviour. Those still need eyes.
 
 Run it after any change to generation or prep scheduling. Averages over 1000+ weeks
 catch things that eyeballing one generated week never will — the oats bug, the

@@ -458,18 +458,18 @@ const PREP = {
   'veg-tray':{ name:'Roast veg tray', mins:10, keeps:4, feeds:'3–4 sides', portion:'Roast veg', per100:{c:56,p:2}, storage:'fridge',
     steps:['Chop broccoli, capsicum, zucchini, red onion, carrot into large chunks.','One tbsp of oil across the whole tray, salt, pepper. Toss.','200°C for 25 min. No turning required.','Cool fully before it goes in a container or it steams itself soggy.'],
     buy:[{n:'Broccoli',q:'1 head',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Zucchini',q:'2',c:'Fruit & veg'},{n:'Red onion',q:'2',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'}] },
-  'eggs':{ name:'Boiled eggs', mins:10, keeps:7, feeds:'8–10 eggs', storage:'fridge',
-    steps:['8 minutes in boiling water for a set-but-not-chalky yolk.','Straight into iced water, then peel while cool. Unpeeled keeps better.'],
-    buy:[{n:'Eggs',q:'10',c:'Dairy & eggs'}] },
+  'eggs':{ name:'Boiled eggs', mins:10, keeps:7, feeds:'6–16 eggs', storage:'fridge',
+    steps:['Count off the board first. A dhal or laksa night is one egg each, so three. An egg sandwich is two each for you and Roshani, so four. Your afternoon snack is one.','Six covers an ordinary week. An egg-heavy one runs to sixteen, which is why the shopping list buys eighteen. They keep seven days, so err high.','8 minutes in boiling water for a set-but-not-chalky yolk.','Straight into iced water, then peel while cool. Unpeeled keeps better.'],
+    buy:[{n:'Eggs',q:'18',c:'Dairy & eggs'}] },
   'rice':{ name:'Cooked rice', mins:6, keeps:4, feeds:'5 serves', portion:'Rice, cooked', per100:{c:130,p:3}, storage:'fridge', staple:true, freezes:true,
     steps:['Rinse 300g (about a cup and a half) of basmati until the water runs clear. That is the difference between grains and paste.','Pressure cooker: equal water, 6 min, natural release. A rice cooker or the absorption method is the same job.','Fork it through and spread it on a tray so it cools fast, then into a sealed container in the fridge.','Cold rice is what fried rice and nasi goreng actually need. Cooking it fresh on the night makes both of them worse.'],
     buy:[{n:'Basmati rice',q:'1kg',c:'Pantry'}] },
   'oats':{ name:'Overnight oats', mins:8, topUpMins:3, keeps:4, feeds:'1 jar per oat day', storage:'fridge',
     steps:['One jar per oat day on the board this week — the chips below tell you how many.','Into each: 40g oats, 170g protein yoghurt, 5g chia, a splash of milk.','Top with berries. Frozen is fine and cheaper.','They are ready the next morning and good for four days. Past that the texture goes claggy, so do not make a jar for a day more than four sleeps away.'],
     buy:[{n:'Rolled oats',q:'500g',c:'Pantry'},{n:'Protein yoghurt (Chobani Zero / YoPRO)',q:'6 tubs',c:'Dairy & eggs'},{n:'Chia seeds',q:'1 pkt',c:'Pantry'},{n:'Frozen mixed berries',q:'250g',c:'Frozen'}] },
-  'crunch-box':{ name:'Crunch box + cut fruit', mins:15, topUpMins:8, keeps:3, feeds:'Snacks + kindy', storage:'fridge',
-    steps:['Cut cucumber, carrot and capsicum into sticks. One big container.','Cut melon, grapes off the stem, apple slices in lemon water.','This doubles as your late-night snack and the kindy boxes. It is the single highest-value 15 minutes of the session.'],
-    buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Cherry tomatoes',q:'1 punnet',c:'Fruit & veg'},{n:'Seasonal fruit',q:'mixed',c:'Fruit & veg'}] },
+  'crunch-box':{ name:'Crunch box', mins:8, topUpMins:4, keeps:3, feeds:'Snacks + kindy', storage:'fridge',
+    steps:['Cut cucumber, carrot and capsicum into sticks. One big container.','Sticks are worth cutting ahead because they hold for three days and you want them at 10pm without thinking. Fruit is not — cut that fresh on the day, it is two minutes and it is better for it.'],
+    buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Cherry tomatoes',q:'1 punnet',c:'Fruit & veg'}] },
   'frozen-grapes':{ name:'Frozen grapes', mins:2, keeps:14, feeds:'A week of late snacks', storage:'freezer',
     steps:['Grapes off the stem, washed, and dried properly or they freeze into one lump.','Spread on a tray in the freezer for an hour, then tip them into a bag.','They keep for weeks, so this is a fortnightly job rather than a weekly one.'],
     buy:[{n:'Grapes',q:'1kg',c:'Fruit & veg'}] }
@@ -477,10 +477,12 @@ const PREP = {
 
 /* Bought every week whatever is on the board. The flat white is in all seven
    breakfasts and its milk was never on the shopping list — and it is the only milk
-   in the app, so nothing half-used sits in the fridge door. */
+   in the app, so nothing half-used sits in the fridge door. Fruit is here rather
+   than in a prep item because it is cut on the day it is eaten. */
 const STAPLES = [
   {n:'Full-cream milk',q:'3L',c:'Dairy & eggs'},
-  {n:'Coffee beans',q:'1 bag',c:'Pantry'}
+  {n:'Coffee beans',q:'1 bag',c:'Pantry'},
+  {n:'Seasonal fruit',q:'mixed',c:'Fruit & veg'}
 ];
 
 const MEALS = [
@@ -493,10 +495,10 @@ const MEALS = [
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Eggs',a:'2 large',c:145,p:13},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Greek yoghurt',a:'100g',c:95,p:9},{n:'Wilted spinach',a:'handful',c:10,p:1}],
  steps:['Toast on. Spinach into a dry pan with a splash of water, 1 min.','Eggs however you like them — poached keeps it lean.','Yoghurt on the side, not on the toast.'],
  buy:[{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
-{id:'b-salmon',slot:'breakfast',name:'Smoked salmon toast',mins:4,base:null,
+{id:'b-salmon',slot:'breakfast',name:'Smoked salmon toast',mins:4,base:'eggs',
  blurb:'Feels like a café breakfast, costs you nothing in protein.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Light cream cheese',a:'30g',c:55,p:3},{n:'Smoked salmon',a:'80g',c:110,p:18},{n:'Boiled egg',a:'1',c:70,p:6},{n:'Capers, dill, lemon',a:'to taste',c:5,p:0}],
- buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Eggs',q:'4',c:'Dairy & eggs'}]},
+ buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'}]},
 {id:'b-cottage',slot:'breakfast',name:'Cottage cheese, honey + cinnamon toast',mins:3,base:null,
  blurb:'The sweet one that still carries protein. Goes better with coffee than eggs do.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Cottage cheese',a:'200g',c:185,p:23},{n:'Honey',a:'1 tsp',c:20,p:0},{n:'Cinnamon',a:'a shake',c:0,p:0},{n:'Frozen mixed berries, thawed',a:'60g',c:30,p:1}],
@@ -535,7 +537,7 @@ const MEALS = [
 {id:'s-egg',slot:'snack1',name:'Boiled egg + a piece of fruit',mins:1,base:'eggs',
  blurb:'Lower protein than the others, but it is real food and it is already in the fridge.',
  portions:[{n:'Boiled egg',a:'1',c:72,p:6},{n:'Apple or mandarin',a:'1',c:85,p:1}],
- buy:[{n:'Apples or mandarins',q:'6',c:'Fruit & veg'}]},
+ buy:[]},
 
 /* ---------------- LUNCH ---------------- */
 {id:'l-chicken',slot:'lunch',name:'Chicken salad sandwich',mins:5,base:'poached-chicken',
@@ -908,6 +910,15 @@ function buildWeek(){
   DAYS.forEach((_,i)=>{ days[i].snack1 = s1[i%s1.length].id; days[i].snack2 = s2[i%s2.length].id; });
 
   return days;
+}
+
+/* Next week becomes this week and is locked; a fresh next week is drawn. The one
+   destructive action in the app, so it is a function rather than inline in the
+   button handler — that way a test can call it. */
+function rollover(){
+  state.current = { days: state.next.days, kindy: state.next.kindy, locked:true };
+  state.next    = { days: buildWeek(), kindy: state.next.kindy.slice(), locked:false };
+  state.view    = 'current';
 }
 
 function generate(){
@@ -1372,7 +1383,7 @@ function openKindy(){
     return;
   }
   const l=shuffle(KINDY.lunch), m=shuffle(KINDY.morning), a=shuffle(KINDY.afternoon);
-  let body = `<p class="d-blurb">Assembled in five minutes on the morning, because the cutting was done on Sunday. Milan is a good eater, so this is about keeping variety up rather than winning him over.</p>`;
+  let body = `<p class="d-blurb">Five minutes on the morning: the veg sticks are already cut and the fruit takes a minute. Milan is a good eater, so this is about keeping variety up rather than winning him over.</p>`;
   w.kindy.forEach((di,n)=>{
     body += `<div class="sess"><div class="sess-h"><h3>${DAYS[di]}</h3><span>morning tea &middot; lunch &middot; afternoon tea</span></div>
       <ul class="plain">
@@ -1444,9 +1455,7 @@ rollBtn.onclick=()=>{
   }
   clearTimeout(rollTimer); rollArmed=false;
   rollBtn.classList.remove('confirming'); rollBtn.textContent='Start new week';
-  state.current = { days: state.next.days, kindy: state.next.kindy, locked:true };
-  state.next    = { days: buildWeek(), kindy: state.next.kindy.slice(), locked:false };
-  state.view='current';
+  rollover();
   save(); render();
 };
 

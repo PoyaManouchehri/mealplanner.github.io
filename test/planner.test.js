@@ -61,6 +61,8 @@ function loadApp() {
   const exportNames = ['MEALS', 'PREP', 'KINDY', 'TARGETS', 'DAILY', 'DAYS', 'SLOTS',
                        'buildWeek', 'prepPlan', 'byId', 'pool', 'cal', 'pro',
                        'basesOf', 'mainBases', 'STAPLES', 'parseQty', 'totalQty', 'shoppingList',
+                       'generate', 'openSwap', 'rollover', 'WIRE_SLOTS', 'render',
+                       'openMeal', 'openPrep', 'openShop', 'openKindy',
                        'encodeState', 'decodeState'];
   eval(src + '\n'
      + exportNames.map(n => `try{api.${n}=${n}}catch(e){}`).join(';')
@@ -308,6 +310,90 @@ const ALLOWED_DUPES = ['oats', 'crunch-box', 'joojeh', 'rice'];
 const badDupes = Object.keys(dupeCooks).filter(k => !ALLOWED_DUPES.includes(k));
 check('no batch protein cooked twice in a week', badDupes.length === 0,
       badDupes.map(k => `${k} \u00d7${dupeCooks[k]}`).join(', '));
+
+/* --- state: the paths nobody looks at until they break --- */
+console.log('\nstate');
+
+const sample = {
+  current: { days: buildWeek(), kindy: [3, 4], locked: true },
+  next:    { days: buildWeek(), kindy: [0, 6], locked: false },
+  view: 'current'
+};
+app.setState(JSON.parse(JSON.stringify(sample)));
+
+/* A share link is the whole plan in the URL. The slot order it encodes is frozen
+   in WIRE_SLOTS precisely so that reordering the board cannot scramble old links. */
+const link = app.encodeState();
+const back = app.decodeState(link);
+/* Compare slot by slot: buildWeek fills the keys in generation order and decode
+   fills them in WIRE_SLOTS order, so stringifying the objects compares key order
+   rather than the plan. */
+const same = ['current', 'next'].every(k =>
+  back[k].days.every((d, i) => SLOT_KEYS.every(s => d[s] === sample[k].days[i][s])) &&
+  JSON.stringify(back[k].kindy) === JSON.stringify(sample[k].kindy) &&
+  back[k].locked === sample[k].locked);
+check('a share link round-trips both weeks exactly', same);
+check('share link keeps its base64 padding', link.length % 4 === 0, `length ${link.length}`);
+check('WIRE_SLOTS still covers every slot', app.WIRE_SLOTS.length === SLOT_KEYS.length
+      && SLOT_KEYS.every(k => app.WIRE_SLOTS.includes(k)), app.WIRE_SLOTS.join(','));
+
+/* A plan saved before any of this session's fields existed must still open. */
+const legacy = JSON.stringify({
+  current: { days: buildWeek(), kindy: [3, 4], locked: true },
+  next:    { days: buildWeek(), kindy: [], locked: false },
+  view: 'next'
+});
+let legacyOk = true, legacyErr = '';
+try {
+  app.setState(JSON.parse(legacy));
+  prepPlan(); shoppingList(JSON.parse(legacy).current);
+} catch (e) { legacyOk = false; legacyErr = e.message; }
+check('a plan saved by the old build still loads', legacyOk, legacyErr);
+
+/* Locked means locked, in the code and not just in the UI. */
+const locked = { current: { days: buildWeek(), kindy: [], locked: true },
+                 next: { days: buildWeek(), kindy: [], locked: false }, view: 'current' };
+app.setState(locked);
+const before = JSON.stringify(locked.current.days);
+app.generate();
+app.openSwap(0, 'dinner');
+check('a locked week refuses to regenerate', JSON.stringify(locked.current.days) === before);
+
+/* Rollover: next week becomes this week, locked, and a fresh next is drawn. */
+const roll = { current: { days: buildWeek(), kindy: [1], locked: true },
+               next: { days: buildWeek(), kindy: [3, 4], locked: false }, view: 'next' };
+const wasNext = JSON.stringify(roll.next.days);
+app.setState(roll);
+app.rollover();
+check('rollover promotes next week and locks it',
+      JSON.stringify(roll.current.days) === wasNext && roll.current.locked === true
+      && roll.next.locked === false && JSON.stringify(roll.next.days) !== wasNext
+      && roll.view === 'current');
+
+app.setState(live);
+
+/* --- every drawer, on real weeks ---
+   The generator tests never touch the rendering, so a renamed field or a template
+   referring to something that no longer exists sails straight past them. This opens
+   every drawer for every meal on every day of a lot of weeks. It asserts nothing
+   about how they look — only that none of them throws. That is a low bar, and it is
+   the bar that catches the mistake that actually gets made. */
+console.log('\ndrawers');
+let renders = 0, drawerErr = '';
+try {
+  for (let i = 0; i < 100; i++) {
+    const w = { current: { days: buildWeek(), kindy: [3, 4], locked: false },
+                next:    { days: buildWeek(), kindy: [], locked: false }, view: 'current' };
+    app.setState(w);
+    app.render();
+    app.openPrep('sunday'); app.openPrep('midweek'); app.openShop(); app.openKindy();
+    for (let d = 0; d < 7; d++) for (const s of SLOT_KEYS) {
+      app.openMeal(d, s); app.openSwap(d, s); renders += 2;
+    }
+  }
+} catch (e) { drawerErr = e.message; }
+check(`every drawer renders (${renders} opened)`, drawerErr === '', drawerErr);
+app.setState(live);
 
 /* --- budgets --- */
 console.log('\nbudgets (informational, not pass/fail)');

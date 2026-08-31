@@ -87,6 +87,8 @@ Adding meals should never require touching anything below that line.
   not cluster the week. Rice is the only one. See the generation rules.
 - `protein: true` marks the five batch proteins. Only these satisfy a
   `leftoverProtein` meal.
+- `restsOvernight: true` means the item cannot be made on a day it is eaten. Only
+  the joojeh marinade has it.
 - `portion` is the portion name meals use for this batch, and `per100` is `{c, p}`
   for 100g of the **finished** batch, derived from that item's own recipe. Together
   they let a test hold every portion to the density of the thing it came from. See
@@ -136,12 +138,24 @@ These were all found by testing and regressions are easy. Keep them true.
 13. The shopping list names one milk, one rice and one type of berry. See
     **One of each thing**.
 14. Every portion drawn from a batch matches that batch's `per100` within 10%.
+15. A `restsOvernight` item is never prepped at a session on the day it is eaten.
 
 ## Generation rules
 
 - **Dinners** are clustered by prep base: one base feeds the early week off the
   Sunday session, another feeds the late week off Wednesday. Three remaining nights
   are cook-fresh or bought. This is what keeps prep at ~70 min total instead of ~145.
+- **A cluster only gets days its base's shelf life reaches**, via `reaches()` in
+  `buildWeek()`. Two conditions, and both matter:
+  - Early cluster (Sunday, day 0): `day <= keeps`. The joojeh marinade keeps two
+    days, so it reaches Monday and Tuesday and no further. Put it on Wednesday and
+    `prepPlan` quietly moves it to the Wednesday session — you end up marinating an
+    hour before dinner and Sunday drops to 26 minutes. That was a real bug.
+  - Late cluster (Wednesday, day 3): `day > keeps` **and** `day - 3 <= keeps`. The
+    first half is the non-obvious one: a day Sunday could also reach gets scheduled
+    on Sunday by `prepPlan`, which splits the batch across both sessions and cooks
+    it twice.
+  - An item with `restsOvernight` additionally needs `day > session`.
 - **Give every new prep base two dinners.** A base with one dinner forces the
   generator to spread prep across more bases and inflates both sessions.
 - **Staples don't cluster.** Rice backs half the dinners, so clustering on it would

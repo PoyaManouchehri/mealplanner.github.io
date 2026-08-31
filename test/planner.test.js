@@ -210,7 +210,7 @@ check('each prep base backs 0 or 2+ dinners', thinBases.length === 0,
 console.log('\ngenerated weeks');
 let slotMismatch = 0, oatsAdjacent = 0, oatsWeekend = 0, breakfastRunOf3 = 0,
     lunchRepeat = 0, shelfViolations = 0, emptySlots = 0, uncoveredLunch = 0,
-    proteinlessLunch = 0, freezerMidweek = 0, doubleCounted = 0;
+    proteinlessLunch = 0, freezerMidweek = 0, doubleCounted = 0, sameDayMarinade = 0;
 const dupeCooks = {};
 const sunMins = [], midMins = [], dayCal = [], dayPro = [];
 
@@ -277,6 +277,12 @@ for (let i = 0; i < WEEKS; i++) {
   /* Freezer items keep for weeks, so they should never need a Wednesday session. */
   plan.midweek.forEach(x => { if (PREP[x.id].storage === 'freezer') freezerMidweek++; });
 
+  /* A marinade mixed on the afternoon it is eaten has not marinated. The joojeh
+     recipe says 24 hours beats 2, so it has to be prepped at a session that is
+     strictly before the first day it is needed. */
+  if (plan.midweek.some(x => PREP[x.id].restsOvernight && x.days[0] <= 3)) sameDayMarinade++;
+  if (plan.sunday.some(x => PREP[x.id].restsOvernight && x.days[0] <= 0)) sameDayMarinade++;
+
   const inSun = new Set(plan.sunday.map(x => x.id));
   plan.midweek.forEach(x => { if (inSun.has(x.id)) dupeCooks[x.id] = (dupeCooks[x.id] || 0) + 1; });
 }
@@ -293,6 +299,7 @@ check('leftover-protein lunches always have a protein batch that day',
       proteinlessLunch === 0, `${proteinlessLunch} occurrences`);
 check('nothing frozen lands in the Wednesday top-up', freezerMidweek === 0, `${freezerMidweek} occurrences`);
 check('a repeated meal is only shopped for once', doubleCounted === 0, `${doubleCounted} double-counted lines`);
+check('a marinade is never made the day it is eaten', sameDayMarinade === 0, `${sameDayMarinade} occurrences`);
 
 /* Only assembly items, the 2-day marinade and rice may appear in both sessions.
    Rice is the one real cook that repeats: it keeps four days, so a week needs two

@@ -452,7 +452,7 @@ const PREP = {
   'poached-chicken':{ name:'Poached shredded chicken', mins:10, keeps:4, feeds:'6–7 serves', portion:'Poached chicken', per100:{c:165,p:31}, storage:'fridge', protein:true, freezes:true,
     steps:['1.4kg chicken breast into the pressure cooker with 300ml stock, a bay leaf, a few peppercorns.','Pressure cook 8 min, quick release.','Shred in the liquid, then store with a splash of it so it does not dry out.'],
     buy:[{n:'Chicken breast',q:'1.4kg',c:'Meat & fish'},{n:'Chicken stock',q:'250ml',c:'Pantry'}] },
-  'joojeh':{ name:'Joojeh marinade (raw)', mins:10, keeps:2, feeds:'2 nights, about 5 serves', portion:'Joojeh chicken, cooked', per100:{c:159,p:25}, storage:'fridge', protein:true,
+  'joojeh':{ name:'Joojeh marinade (raw)', mins:10, keeps:2, restsOvernight:true, feeds:'2 nights, about 5 serves', portion:'Joojeh chicken, cooked', per100:{c:159,p:25}, storage:'fridge', protein:true,
     steps:['Whisk 150g Greek yoghurt, juice of 1 lemon, 1 grated onion, salt, pepper.','Bloom a good pinch of saffron in 1 tbsp hot water for 5 min, stir it in.','Add 900g thigh in 3cm pieces. Cover, fridge. Better at 24h than at 2h.','Stays good raw in the marinade for 2 days.'],
     buy:[{n:'Chicken thigh fillet, skinless',q:'900g',c:'Meat & fish'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'},{n:'Lemon',q:'2',c:'Fruit & veg'},{n:'Saffron',q:'pinch',c:'Pantry'}] },
   'veg-tray':{ name:'Roast veg tray', mins:10, keeps:4, feeds:'3–4 sides', portion:'Roast veg', per100:{c:56,p:2}, storage:'fridge',
@@ -783,28 +783,52 @@ function buildWeek(){
   const bought  = dinners.find(d=>d.id==='d-bought');
   const availBases = shuffle([...new Set(dinners.flatMap(d=>mainBases(d)))]);
 
-  const draw = (bases, want) => {           // take `want` dinners from as few bases as possible
+  /* A cluster is only real if the batch survives to the days it is put on. The
+     joojeh marinade keeps two days, so from Sunday it reaches Monday and Tuesday
+     and no further — put it on Wednesday and it quietly falls through to the
+     Wednesday session, which leaves you marinating an hour before dinner and an
+     empty Sunday. So each base is only offered the days its shelf life reaches. */
+  const reaches = (b, dayIdx, session) => {
+    const keeps = PREP[b].keeps || 4, day = dayIdx + 1;
+    /* A marinade cannot be mixed the afternoon it is eaten. */
+    if(day < session + (PREP[b].restsOvernight ? 1 : 0)) return false;
+    if(session === SUNDAY_DAY) return day <= keeps;
+    /* A late-cluster day has to be one Sunday genuinely cannot reach. Otherwise
+       prepPlan puts that day back on Sunday and the batch gets cooked twice. */
+    return day > keeps && day - session <= keeps;
+  };
+  const dinnersOn = b => dinners.filter(d=>mainBases(d).includes(b));
+
+  const draw = (bases, dayPool, want, session) => {   // `want` dinners from as few bases as possible
     const out=[], used=new Set();
-    for(const b of bases){
-      if(out.length>=want) break;
-      const ds = shuffle(dinners.filter(d=>mainBases(d).includes(b)));
-      if(!ds.length) continue;
-      out.push(...ds.slice(0, want-out.length));
-      used.add(b);
-    }
+    let free = shuffle(dayPool);
+    const take = (b, n) => {
+      const fit = free.filter(d=>reaches(b, d, session)).slice(0, n);
+      const ds  = shuffle(dinnersOn(b)).slice(0, fit.length);
+      ds.forEach((m,i)=>{ out.push({meal:m, dayIdx:fit[i]}); });
+      if(ds.length){ used.add(b); free = free.filter(d=>!fit.slice(0,ds.length).includes(d)); }
+    };
+    /* One base covering the whole cluster is the point — it is what keeps the
+       batch to a single cook. Only settle for a partial fill if none can. */
+    const whole = bases.filter(b => free.filter(d=>reaches(b, d, session)).length >= want
+                                 && dinnersOn(b).length >= want);
+    if(whole.length) take(whole[0], want);
+    for(const b of bases){ if(out.length>=want) break; if(!used.has(b)) take(b, want-out.length); }
     return {out, used};
   };
 
-  const earlyDraw = draw(availBases, 2);
-  const lateDraw  = draw(availBases.filter(b=>!earlyDraw.used.has(b)), 2);
+  const earlyDraw = draw(availBases, [0,1,2,3], 2, SUNDAY_DAY);
+  /* Every day the early cluster left. Which of them a base may actually use is
+     `reaches`'s problem — a 4-day base still only gets Fri to Sun, but the 2-day
+     marinade can take Thursday and Friday off the Wednesday session. */
+  const lateDayPool = [0,1,2,3,4,5,6].filter(d=>!earlyDraw.out.some(x=>x.dayIdx===d));
+  const lateDraw  = draw(availBases.filter(b=>!earlyDraw.used.has(b)), lateDayPool, 2, MIDWEEK_DAY);
 
-  const earlyDays = shuffle([0,1,2,3]);
-  const lateDays  = shuffle([4,5,6]);
   const taken = new Set();
-  earlyDraw.out.forEach((d,i)=>{ days[earlyDays[i]].dinner = d.id; taken.add(earlyDays[i]); });
-  lateDraw.out.forEach((d,i)=>{ days[lateDays[i]].dinner = d.id; taken.add(lateDays[i]); });
+  const clustered = [...earlyDraw.out, ...lateDraw.out];
+  clustered.forEach(x=>{ days[x.dayIdx].dinner = x.meal.id; taken.add(x.dayIdx); });
 
-  const usedIds = new Set([...earlyDraw.out, ...lateDraw.out].map(d=>d.id));
+  const usedIds = new Set(clustered.map(x=>x.meal.id));
   const fillers = shuffle([
     bought,
     ...shuffle(dinners.filter(d=>d.id!=='d-bought' && !usedIds.has(d.id) && !mainBases(d).length))

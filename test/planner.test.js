@@ -61,7 +61,7 @@ function loadApp() {
   const exportNames = ['MEALS', 'PREP', 'KINDY', 'TARGETS', 'DAILY', 'DAYS', 'SLOTS',
                        'buildWeek', 'prepPlan', 'byId', 'pool', 'cal', 'pro',
                        'basesOf', 'mainBases', 'STAPLES', 'parseQty', 'totalQty', 'shoppingList',
-                       'generate', 'openSwap', 'rollover', 'WIRE_SLOTS', 'render',
+                       'generate', 'openSwap', 'rollover', 'WIRE_SLOTS', 'render', 'meatOf',
                        'openMeal', 'openPrep', 'openShop', 'openKindy',
                        'encodeState', 'decodeState'];
   eval(src + '\n'
@@ -212,7 +212,9 @@ check('each prep base backs 0 or 2+ dinners', thinBases.length === 0,
 console.log('\ngenerated weeks');
 let slotMismatch = 0, oatsAdjacent = 0, oatsWeekend = 0, breakfastRunOf3 = 0,
     lunchRepeat = 0, shelfViolations = 0, emptySlots = 0, uncoveredLunch = 0,
-    proteinlessLunch = 0, freezerMidweek = 0, doubleCounted = 0, sameDayMarinade = 0;
+    proteinlessLunch = 0, freezerMidweek = 0, doubleCounted = 0, sameDayMarinade = 0,
+    meatOverload = 0;
+const seenMeal = new Set();
 const dupeCooks = {};
 const sunMins = [], midMins = [], dayCal = [], dayPro = [];
 
@@ -231,10 +233,17 @@ for (let i = 0; i < WEEKS; i++) {
       const m = byId(d[k]);
       if (!m) { emptySlots++; return; }
       if (m.slot !== k) slotMismatch++;
+      seenMeal.add(m.id);
       c += cal(m); p += pro(m);
     });
     dayCal.push(c); dayPro.push(p);
   });
+
+  /* Beef-heavy and chicken-heavy weeks were the complaint. Three nights of one
+     protein out of seven is variety; four is a rut. */
+  const meats = {};
+  days.forEach(d => { const k = app.meatOf(byId(d.dinner)); meats[k] = (meats[k] || 0) + 1; });
+  if (Object.entries(meats).some(([k, n]) => k !== 'other' && n > 3)) meatOverload++;
 
   const b = days.map(d => d.breakfast);
   for (let j = 1; j < 7; j++) if (b[j] === 'b-oats' && b[j - 1] === 'b-oats') oatsAdjacent++;
@@ -308,6 +317,13 @@ check('a marinade is never made the day it is eaten', sameDayMarinade === 0, `${
    batches no matter how the meals fall. */
 const ALLOWED_DUPES = ['oats', 'crunch-box', 'joojeh', 'rice'];
 const badDupes = Object.keys(dupeCooks).filter(k => !ALLOWED_DUPES.includes(k));
+check('no week has four dinners of the same protein', meatOverload === 0, `${meatOverload} weeks`);
+
+/* A balancer that is too eager stops picking things at all: minimising the protein
+   count instead of capping it silently dropped the creamy pasta from every week. */
+const neverPicked = MEALS.filter(m => !seenMeal.has(m.id)).map(m => m.id);
+check('every meal in the library still gets used', neverPicked.length === 0, neverPicked.join(', '));
+
 check('no batch protein cooked twice in a week', badDupes.length === 0,
       badDupes.map(k => `${k} \u00d7${dupeCooks[k]}`).join(', '));
 

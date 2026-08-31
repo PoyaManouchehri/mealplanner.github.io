@@ -63,7 +63,12 @@ Adding meals should never require touching anything below that line.
   `null`. Every id must exist in `PREP`. Use `basesOf(m)` to read it — never
   `m.base` directly, it may be a string or an array. `mainBases(m)` drops staples.
 - `leftoverProtein: true` marks a meal whose portions say "any cooked protein" —
-  it only lands on a day when a batch protein is actually in the fridge.
+  it only lands on a day when a batch protein is actually in the fridge. Careful
+  stacking this with a `base`: a meal needing two different batches on one day is
+  usually unsatisfiable, because the clustering puts them in opposite halves of the
+  week. That is how the leftover rice bowl went 20,000 weeks without being picked.
+- `meat` is `chicken | beef | fish | veg | egg | other` on lunches and dinners, and
+  it is what stops a week coming out four chicken dinners deep. See **Balance**.
 - `buy[]` is `{n, q, c}` — category `c` must be one of: `Meat & fish`, `Fruit & veg`,
   `Dairy & eggs`, `Bakery`, `Frozen`, `Pantry`. Anything else silently vanishes from
   the shopping list.
@@ -146,6 +151,8 @@ These were all found by testing and regressions are easy. Keep them true.
     **One of each thing**.
 14. Every portion drawn from a batch matches that batch's `per100` within 10%.
 15. A `restsOvernight` item is never prepped at a session on the day it is eaten.
+16. No week has four dinners of the same protein.
+17. Every meal in the library gets used at least once over a long run.
 
 ## Generation rules
 
@@ -197,6 +204,26 @@ have to be revisited at the same time.
 
 Densities that check out against reference values and should be left alone: poached
 breast at 165/100g, rice at 130, pasta at 350 dry, oats at 375, the dairy, the oils.
+
+## Balance
+
+Left alone the generator produced four-plus dinners of one protein in **34%** of
+weeks and five-plus in 7%, because the dinner library is chicken-heavy (8 of 19) and
+both cluster dinners come off a single base and are therefore the same meat.
+
+Two rules fix it, and the second one matters as much as the first:
+
+1. The late cluster prefers a base that can offer a protein the early cluster did
+   not, so the four cluster nights are 2 + 2 rather than 4 of a kind.
+2. Fillers and batch lunches pick at random from whatever is **under** a cap of
+   three of one protein per week — `balanced()` in `buildWeek()`.
+
+The cap is the point. The first version *minimised* the protein count instead, which
+balanced the week perfectly and made it identical every time: dhal and a bought night
+in 100% of weeks, the creamy pasta in none, three distinct week shapes in 5,000. With
+the cap it is 20 shapes, every dinner gets used, and no week goes past three of one
+protein. **A balancer that is too eager stops picking things at all** — the
+"every meal in the library still gets used" test exists for exactly that.
 
 ## Shopping quantities
 

@@ -48,7 +48,10 @@ Adding meals should never require touching anything below that line.
 { id, slot, name, mins, base, blurb, portions:[], steps:[], buy:[], weekend? }
 ```
 
-- `slot` is one of `breakfast | snack1 | lunch | dinner | snack2`
+- `slot` is one of `breakfast | snack1 | lunch | dinner | snack2`. `snack1` is the
+  **afternoon** snack — it sits between lunch and dinner on the board. The keys keep
+  their old names because share links encode slots positionally; `WIRE_SLOTS` holds
+  that frozen order and must not be reordered to match `SLOTS`.
 - **Calories and protein are derived from `portions`, never stored.** `cal(m)` and
   `pro(m)` sum the portion array. Never hardcode a total — the board and the docket
   read from the same source so they can't disagree.

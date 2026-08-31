@@ -501,7 +501,7 @@ const MEALS = [
  steps:['Make the batter with the four-year-old. That is half of what this meal is for.','Serve with yoghurt and berries rather than a jug of syrup on the table.','If you want to be careful, have two rather than four and a boiled egg alongside.'],
  buy:[{n:'Plain flour',q:'1 bag',c:'Pantry'},{n:'Maple syrup',q:'1 bottle',c:'Pantry'},{n:'Berries',q:'1 punnet',c:'Fruit & veg'}]},
 
-/* ---------------- DAY SNACK ---------------- */
+/* ---------------- AFTERNOON SNACK ---------------- */
 {id:'s-yog',slot:'snack1',name:'Protein yoghurt tub',mins:0,base:null,
  blurb:'Chobani Zero or YoPRO. Zero effort, 20g of protein, fits in a laptop bag.',
  portions:[{n:'Protein yoghurt',a:'1 tub',c:120,p:20}],
@@ -730,11 +730,14 @@ const SYNC = {
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SLOTS = [
   {k:'breakfast',lab:'Breakfast'},
-  {k:'snack1',lab:'Snack'},
   {k:'lunch',lab:'Lunch'},
+  {k:'snack1',lab:'Afternoon snack'},
   {k:'dinner',lab:'Dinner'},
   {k:'snack2',lab:'Late snack'}
 ];
+// Share links encode slots positionally, so that order is frozen here and must not
+// follow SLOTS — reordering the board would otherwise scramble every existing link.
+const WIRE_SLOTS = ['breakfast','snack1','lunch','dinner','snack2'];
 const byId = id => MEALS.find(m=>m.id===id);
 const pool = slot => MEALS.filter(m=>m.slot===slot);
 const cal  = m => m ? m.portions.reduce((s,p)=>s+p.c,0) : 0;
@@ -903,14 +906,14 @@ async function save(){
 
 /* ---------- share link: the whole plan, encoded in the URL ---------- */
 function encodeState(){
-  const packWeek = w => ({ d: w.days.map(d=>SLOTS.map(s=>d[s.k])), k: w.kindy, l: w.locked?1:0 });
+  const packWeek = w => ({ d: w.days.map(d=>WIRE_SLOTS.map(k=>d[k])), k: w.kindy, l: w.locked?1:0 });
   const payload = { c: packWeek(state.current), n: packWeek(state.next) };
   return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
 }
 function decodeState(str){
   const p = JSON.parse(decodeURIComponent(escape(atob(str))));
   const unpack = w => ({
-    days: w.d.map(row=>{ const o={}; SLOTS.forEach((s,i)=>o[s.k]=row[i]); return o; }),
+    days: w.d.map(row=>{ const o={}; WIRE_SLOTS.forEach((k,i)=>o[k]=row[i]); return o; }),
     kindy: w.k || [], locked: !!w.l
   });
   return { current: unpack(p.c), next: unpack(p.n), view:'current' };

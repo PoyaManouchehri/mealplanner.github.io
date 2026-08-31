@@ -60,7 +60,8 @@ function loadApp() {
   const api = {};
   const exportNames = ['MEALS', 'PREP', 'KINDY', 'TARGETS', 'DAILY', 'DAYS', 'SLOTS',
                        'buildWeek', 'prepPlan', 'byId', 'pool', 'cal', 'pro',
-                       'basesOf', 'mainBases', 'STAPLES', 'encodeState', 'decodeState'];
+                       'basesOf', 'mainBases', 'STAPLES', 'parseQty', 'totalQty', 'shoppingList',
+                       'encodeState', 'decodeState'];
   eval(src + '\n'
      + exportNames.map(n => `try{api.${n}=${n}}catch(e){}`).join(';')
      + ';api.setState = s => { state = s; };');
@@ -82,7 +83,7 @@ const max = a => a.reduce((x, y) => y > x ? y : x, -Infinity);
 /* ---------- run ---------- */
 const app = loadApp();
 const { MEALS, PREP, TARGETS, DAILY, DAYS, buildWeek, prepPlan, byId, pool, cal, pro,
-        basesOf, mainBases, STAPLES } = app;
+        basesOf, mainBases, STAPLES, parseQty, totalQty, shoppingList } = app;
 
 /* Which session covers a base for a given day, mirroring buildWeek. Day 0 is Monday. */
 const sessionOf = (base, dayIdx) => (dayIdx + 1) <= (PREP[base].keeps || 4) ? 'sun' : 'mid';
@@ -139,6 +140,56 @@ const manyTypes = ONE_OF
 check('only one type of milk, rice and berries on the shopping list',
       manyTypes.length === 0, manyTypes.map(([l, n]) => `${l}: ${n.join(' / ')}`).join('; '));
 
+/* The shopping list adds amounts up (600g + 800g of thigh is 1.4kg) but takes one
+   of anything sold as a container (three meals wanting soy sauce is one bottle).
+   That only works if every source of an ingredient measures it the same way —
+   "1 bag" and "4" cannot be combined, and the list falls back to printing both. */
+const byName = {};
+[...MEALS.flatMap(m => (m.buy || []).map(b => [m.id, b])),
+ ...Object.entries(PREP).flatMap(([k, p]) => (p.buy || []).map(b => [k, b])),
+ ...STAPLES.map(b => ['STAPLES', b])
+].forEach(([id, b]) => (byName[b.n] = byName[b.n] || []).push({ id, q: b.q }));
+
+const unparseable = [];
+const mixedUnits = [];
+Object.entries(byName).forEach(([n, rows]) => {
+  if (rows.length < 2) return;                       // a lone line is printed as written
+  const parsed = rows.map(r => parseQty(r.q));
+  if (parsed.some(x => !x)) { unparseable.push(`${n}: ${rows.map(r => r.q).join(' / ')}`); return; }
+  if (new Set(parsed.map(x => x.u)).size > 1) mixedUnits.push(`${n}: ${rows.map(r => r.q).join(' / ')}`);
+});
+check('every shared ingredient has a readable quantity', unparseable.length === 0, unparseable.join('; '));
+check('sources of the same ingredient agree on the unit', mixedUnits.length === 0, mixedUnits.join('; '));
+
+const qtyCases = [
+  [['600g', '800g'], '1.4kg'],          // three batches of chicken really is more chicken
+  [['1 jar', '1 jar', '1 jar'], '1 jar'],  // however many meals want it, it is one jar
+  [['2', '2', '2'], '6'],
+  [['250ml', '250ml'], '500ml'],
+  [['1 × 400g', '1 × 400g'], '2 × 400g']
+];
+const qtyBad = qtyCases.filter(([qs, want]) => totalQty(qs) !== want)
+                       .map(([qs, want]) => `${qs.join('+')} => ${totalQty(qs)}, want ${want}`);
+check('quantities add up, packs do not', qtyBad.length === 0, qtyBad.join('; '));
+
+/* Calories are the number this app exists for, so a portion drawn from a batch has
+   to match the density of the batch it came from. A stew is meat AND sauce: 150g of
+   curry base is not 150g of chicken, and pricing it as if it were is how a day quietly
+   runs 300 kcal short of what it claims. per100 on the prep item is derived from that
+   item's own recipe; the portions have to agree with it. */
+const density = [];
+Object.values(PREP).filter(p => p.portion && p.per100).forEach(pr => {
+  MEALS.forEach(m => m.portions.forEach(x => {
+    if (!x.n.startsWith(pr.portion)) return;
+    const g = /^(\d+(?:\.\d+)?)\s*g$/.exec(x.a);
+    if (!g) return;
+    const want = +g[1] * pr.per100.c / 100;
+    if (Math.abs(x.c - want) / want > 0.1)
+      density.push(`${m.id} ${x.n} ${x.a}=${x.c} kcal, recipe says ${Math.round(want)}`);
+  }));
+});
+check('batch portions match the density of their batch', density.length === 0, density.join('; '));
+
 /* The one milk is full cream, because that is what the daily coffee needs. */
 const wrongMilk = MEALS.filter(m => m.portions.some(x => /skim|low.fat|light milk/i.test(x.n))).map(m => m.id);
 check('no meal asks for a milk other than full cream', wrongMilk.length === 0, wrongMilk.join(', '));
@@ -159,7 +210,7 @@ check('each prep base backs 0 or 2+ dinners', thinBases.length === 0,
 console.log('\ngenerated weeks');
 let slotMismatch = 0, oatsAdjacent = 0, oatsWeekend = 0, breakfastRunOf3 = 0,
     lunchRepeat = 0, shelfViolations = 0, emptySlots = 0, uncoveredLunch = 0,
-    proteinlessLunch = 0, freezerMidweek = 0;
+    proteinlessLunch = 0, freezerMidweek = 0, doubleCounted = 0;
 const dupeCooks = {};
 const sunMins = [], midMins = [], dayCal = [], dayPro = [];
 
@@ -215,6 +266,14 @@ for (let i = 0; i < WEEKS; i++) {
     if (d - 3 > x.keeps && !(x.late || []).includes(d)) shelfViolations++;
   }));
 
+  /* A buy line is a week's worth of that meal, so a meal landing on two days must
+     still only put its ingredients on the list once. */
+  const sources = {};
+  [...MEALS.map(m => [m.id, m.buy]), ...Object.entries(PREP).map(([k, p]) => [k, p.buy])]
+    .forEach(([, buy]) => (buy || []).forEach(b => { sources[b.n.toLowerCase()] = (sources[b.n.toLowerCase()] || 0) + 1; }));
+  STAPLES.forEach(b => { sources[b.n.toLowerCase()] = (sources[b.n.toLowerCase()] || 0) + 1; });
+  shoppingList(live.current).forEach((row, k) => { if (row.qs.length > sources[k]) doubleCounted++; });
+
   /* Freezer items keep for weeks, so they should never need a Wednesday session. */
   plan.midweek.forEach(x => { if (PREP[x.id].storage === 'freezer') freezerMidweek++; });
 
@@ -233,6 +292,7 @@ check('no lunch forces its own extra cook', uncoveredLunch === 0, `${uncoveredLu
 check('leftover-protein lunches always have a protein batch that day',
       proteinlessLunch === 0, `${proteinlessLunch} occurrences`);
 check('nothing frozen lands in the Wednesday top-up', freezerMidweek === 0, `${freezerMidweek} occurrences`);
+check('a repeated meal is only shopped for once', doubleCounted === 0, `${doubleCounted} double-counted lines`);
 
 /* Only assembly items, the 2-day marinade and rice may appear in both sessions.
    Rice is the one real cook that repeats: it keeps four days, so a week needs two

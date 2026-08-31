@@ -440,36 +440,36 @@ const TARGETS = { breakfast:470, snack1:145, lunch:395, dinner:525, snack2:115 }
 const DAILY   = { cal:1650, protein:140 };
 
 const PREP = {
-  'curry-base':{ name:'Chicken curry base', mins:20, keeps:4, feeds:'3–4 servings', storage:'fridge', protein:true, freezes:true,
-    steps:['Dice 2 onions, crush 6 garlic, grate a thumb of ginger.','Sauté in the pressure cooker on Sauté with 1 tbsp oil until soft, 5 min.','Add 3 tbsp curry paste, fry 1 min until fragrant.','Add 1kg skinless thigh (trimmed, halved) and a 400g tin of tomato. Stir.','Pressure cook 12 min, natural release 10.','Cool, then split into portions. Do NOT add coconut milk yet — that goes in per night.'],
-    buy:[{n:'Chicken thigh fillet, skinless',q:'1kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Garlic',q:'1 bulb',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'},{n:'Curry paste',q:'1 jar',c:'Pantry'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'}] },
-  'mince-base':{ name:'Beef mince base', mins:15, keeps:4, feeds:'3–4 servings', storage:'fridge', protein:true, freezes:true,
-    steps:['Brown 750g lean (5-star) mince in a hot pan, breaking it up. Drain any fat.','Add 1 diced onion, 4 crushed garlic, cook 4 min.','Add a 400g tin of tomato and 2 tbsp passata. Simmer 8 min.','Season with salt and pepper only. Leave it neutral — it becomes Mexican or bolognese later.'],
-    buy:[{n:'Beef mince, lean 5-star',q:'750g',c:'Meat & fish'},{n:'Brown onion',q:'1',c:'Fruit & veg'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}] },
-  'slow-beef':{ name:'Slow cooker beef', mins:15, keeps:4, feeds:'3–4 servings', storage:'fridge', protein:true, freezes:true,
-    steps:['Sear 1.2kg chuck steak in chunks, in batches, until well browned. Worth the 8 minutes.','Into the slow cooker with 2 sliced onions, 4 garlic, 2 bay, 300ml stock, 2 tbsp tomato paste.','Low 6–7 hours, or pressure cook 45 min.','Shred with two forks in the liquid. Keeps 4 days and is better on day two.'],
-    buy:[{n:'Beef chuck steak',q:'1.2kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Beef stock',q:'500ml',c:'Pantry'},{n:'Tomato paste',q:'1 tube',c:'Pantry'}] },
-  'poached-chicken':{ name:'Poached shredded chicken', mins:10, keeps:4, feeds:'4–5 servings', storage:'fridge', protein:true, freezes:true,
-    steps:['800g chicken breast into the pressure cooker with 250ml stock, a bay leaf, a few peppercorns.','Pressure cook 8 min, quick release.','Shred in the liquid, then store with a splash of it so it does not dry out.'],
-    buy:[{n:'Chicken breast',q:'800g',c:'Meat & fish'},{n:'Chicken stock',q:'500ml',c:'Pantry'}] },
-  'joojeh':{ name:'Joojeh marinade (raw)', mins:10, keeps:2, feeds:'2 nights', storage:'fridge', protein:true,
-    steps:['Whisk 150g Greek yoghurt, juice of 1 lemon, 1 grated onion, salt, pepper.','Bloom a good pinch of saffron in 1 tbsp hot water for 5 min, stir it in.','Add 600g thigh in 3cm pieces. Cover, fridge. Better at 24h than at 2h.','Stays good raw in the marinade for 2 days.'],
-    buy:[{n:'Chicken thigh fillet, skinless',q:'600g',c:'Meat & fish'},{n:'Greek yoghurt',q:'500g tub',c:'Dairy & eggs'},{n:'Lemon',q:'2',c:'Fruit & veg'},{n:'Saffron',q:'pinch',c:'Pantry'}] },
-  'veg-tray':{ name:'Roast veg tray', mins:10, keeps:4, feeds:'3–4 sides', storage:'fridge',
+  'curry-base':{ name:'Chicken curry base', mins:20, keeps:4, feeds:'about 7 serves', portion:'Curry base', per100:{c:96,p:13}, storage:'fridge', protein:true, freezes:true,
+    steps:['Dice 2 onions, crush 6 garlic, grate a thumb of ginger.','Sauté in the pressure cooker on Sauté with 1 tbsp oil until soft, 5 min.','Add 3 tbsp curry paste, fry 1 min until fragrant.','Add 1.2kg skinless thigh (trimmed, halved) and a 400g tin of tomato. Stir.','Pressure cook 12 min, natural release 10.','Cool, then split into portions. Do NOT add coconut milk yet — that goes in per night.'],
+    buy:[{n:'Chicken thigh fillet, skinless',q:'1.2kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Garlic',q:'1 bulb',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'},{n:'Curry paste',q:'1 jar',c:'Pantry'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'}] },
+  'mince-base':{ name:'Beef mince base', mins:15, keeps:4, feeds:'about 6 serves', portion:'Mince base', per100:{c:124,p:18}, storage:'fridge', protein:true, freezes:true,
+    steps:['Brown 1kg lean (5-star) mince in a hot pan, breaking it up. Drain any fat.','Add 1 diced onion, 4 crushed garlic, cook 4 min.','Add a 400g tin of tomato and 2 tbsp passata. Simmer 8 min.','Season with salt and pepper only. Leave it neutral — it becomes Mexican or bolognese later.'],
+    buy:[{n:'Beef mince, lean 5-star',q:'1kg',c:'Meat & fish'},{n:'Brown onion',q:'1',c:'Fruit & veg'},{n:'Tinned tomato',q:'1 × 400g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}] },
+  'slow-beef':{ name:'Slow cooker beef', mins:15, keeps:4, feeds:'about 8 serves', portion:'Shredded beef', per100:{c:182,p:18}, storage:'fridge', protein:true, freezes:true,
+    steps:['Sear 1kg chuck steak in chunks, in batches, until well browned. Worth the 8 minutes.','Into the slow cooker with 2 sliced onions, 4 garlic, 2 bay, 300ml stock, 2 tbsp tomato paste.','Low 6–7 hours, or pressure cook 45 min.','Shred with two forks in the liquid. Keeps 4 days and is better on day two.'],
+    buy:[{n:'Beef chuck steak',q:'1kg',c:'Meat & fish'},{n:'Brown onion',q:'2',c:'Fruit & veg'},{n:'Beef stock',q:'500ml',c:'Pantry'},{n:'Tomato paste',q:'1 tube',c:'Pantry'}] },
+  'poached-chicken':{ name:'Poached shredded chicken', mins:10, keeps:4, feeds:'6–7 serves', portion:'Poached chicken', per100:{c:165,p:31}, storage:'fridge', protein:true, freezes:true,
+    steps:['1.4kg chicken breast into the pressure cooker with 300ml stock, a bay leaf, a few peppercorns.','Pressure cook 8 min, quick release.','Shred in the liquid, then store with a splash of it so it does not dry out.'],
+    buy:[{n:'Chicken breast',q:'1.4kg',c:'Meat & fish'},{n:'Chicken stock',q:'250ml',c:'Pantry'}] },
+  'joojeh':{ name:'Joojeh marinade (raw)', mins:10, keeps:2, feeds:'2 nights, about 5 serves', portion:'Joojeh chicken, cooked', per100:{c:159,p:25}, storage:'fridge', protein:true,
+    steps:['Whisk 150g Greek yoghurt, juice of 1 lemon, 1 grated onion, salt, pepper.','Bloom a good pinch of saffron in 1 tbsp hot water for 5 min, stir it in.','Add 900g thigh in 3cm pieces. Cover, fridge. Better at 24h than at 2h.','Stays good raw in the marinade for 2 days.'],
+    buy:[{n:'Chicken thigh fillet, skinless',q:'900g',c:'Meat & fish'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'},{n:'Lemon',q:'2',c:'Fruit & veg'},{n:'Saffron',q:'pinch',c:'Pantry'}] },
+  'veg-tray':{ name:'Roast veg tray', mins:10, keeps:4, feeds:'3–4 sides', portion:'Roast veg', per100:{c:56,p:2}, storage:'fridge',
     steps:['Chop broccoli, capsicum, zucchini, red onion, carrot into large chunks.','One tbsp of oil across the whole tray, salt, pepper. Toss.','200°C for 25 min. No turning required.','Cool fully before it goes in a container or it steams itself soggy.'],
     buy:[{n:'Broccoli',q:'1 head',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Zucchini',q:'2',c:'Fruit & veg'},{n:'Red onion',q:'2',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'}] },
   'eggs':{ name:'Boiled eggs', mins:10, keeps:7, feeds:'8–10 eggs', storage:'fridge',
     steps:['8 minutes in boiling water for a set-but-not-chalky yolk.','Straight into iced water, then peel while cool. Unpeeled keeps better.'],
-    buy:[{n:'Eggs',q:'1 dozen',c:'Dairy & eggs'}] },
-  'rice':{ name:'Cooked rice', mins:6, keeps:4, feeds:'6–7 serves', storage:'fridge', staple:true, freezes:true,
-    steps:['Rinse 3 cups of basmati until the water runs clear. That is the difference between grains and paste.','Pressure cooker: equal water, 6 min, natural release. A rice cooker or the absorption method is the same job.','Fork it through and spread it on a tray so it cools fast, then into a sealed container in the fridge.','Cold rice is what fried rice and nasi goreng actually need. Cooking it fresh on the night makes both of them worse.'],
+    buy:[{n:'Eggs',q:'10',c:'Dairy & eggs'}] },
+  'rice':{ name:'Cooked rice', mins:6, keeps:4, feeds:'5 serves', portion:'Rice, cooked', per100:{c:130,p:3}, storage:'fridge', staple:true, freezes:true,
+    steps:['Rinse 300g (about a cup and a half) of basmati until the water runs clear. That is the difference between grains and paste.','Pressure cooker: equal water, 6 min, natural release. A rice cooker or the absorption method is the same job.','Fork it through and spread it on a tray so it cools fast, then into a sealed container in the fridge.','Cold rice is what fried rice and nasi goreng actually need. Cooking it fresh on the night makes both of them worse.'],
     buy:[{n:'Basmati rice',q:'1kg',c:'Pantry'}] },
   'oats':{ name:'Overnight oats', mins:8, topUpMins:3, keeps:4, feeds:'1 jar per oat day', storage:'fridge',
     steps:['One jar per oat day on the board this week — the chips below tell you how many.','Into each: 40g oats, 170g protein yoghurt, 5g chia, a splash of milk.','Top with berries. Frozen is fine and cheaper.','They are ready the next morning and good for four days. Past that the texture goes claggy, so do not make a jar for a day more than four sleeps away.'],
-    buy:[{n:'Rolled oats',q:'500g',c:'Pantry'},{n:'Protein yoghurt (Chobani Zero / YoPRO)',q:'6 tubs',c:'Dairy & eggs'},{n:'Chia seeds',q:'1 pkt',c:'Pantry'},{n:'Frozen mixed berries',q:'500g',c:'Frozen'}] },
+    buy:[{n:'Rolled oats',q:'500g',c:'Pantry'},{n:'Protein yoghurt (Chobani Zero / YoPRO)',q:'6 tubs',c:'Dairy & eggs'},{n:'Chia seeds',q:'1 pkt',c:'Pantry'},{n:'Frozen mixed berries',q:'250g',c:'Frozen'}] },
   'crunch-box':{ name:'Crunch box + cut fruit', mins:15, topUpMins:8, keeps:3, feeds:'Snacks + kindy', storage:'fridge',
     steps:['Cut cucumber, carrot and capsicum into sticks. One big container.','Cut melon, grapes off the stem, apple slices in lemon water.','This doubles as your late-night snack and the kindy boxes. It is the single highest-value 15 minutes of the session.'],
-    buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Carrot',q:'1 bag',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Cherry tomatoes',q:'1 punnet',c:'Fruit & veg'},{n:'Seasonal fruit',q:'mixed',c:'Fruit & veg'}] },
+    buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Carrot',q:'4',c:'Fruit & veg'},{n:'Capsicum',q:'2',c:'Fruit & veg'},{n:'Cherry tomatoes',q:'1 punnet',c:'Fruit & veg'},{n:'Seasonal fruit',q:'mixed',c:'Fruit & veg'}] },
   'frozen-grapes':{ name:'Frozen grapes', mins:2, keeps:14, feeds:'A week of late snacks', storage:'freezer',
     steps:['Grapes off the stem, washed, and dried properly or they freeze into one lump.','Spread on a tray in the freezer for an hour, then tip them into a bag.','They keep for weeks, so this is a fortnightly job rather than a weekly one.'],
     buy:[{n:'Grapes',q:'1kg',c:'Fruit & veg'}] }
@@ -496,11 +496,11 @@ const MEALS = [
 {id:'b-salmon',slot:'breakfast',name:'Smoked salmon toast',mins:4,base:null,
  blurb:'Feels like a café breakfast, costs you nothing in protein.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Light cream cheese',a:'30g',c:55,p:3},{n:'Smoked salmon',a:'80g',c:110,p:18},{n:'Boiled egg',a:'1',c:70,p:6},{n:'Capers, dill, lemon',a:'to taste',c:5,p:0}],
- buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Eggs',q:'1 dozen',c:'Dairy & eggs'}]},
+ buy:[{n:'Smoked salmon',q:'1 pkt',c:'Meat & fish'},{n:'Light cream cheese',q:'1 tub',c:'Dairy & eggs'},{n:'Wholemeal bread',q:'1 loaf',c:'Bakery'},{n:'Eggs',q:'4',c:'Dairy & eggs'}]},
 {id:'b-cottage',slot:'breakfast',name:'Cottage cheese, honey + cinnamon toast',mins:3,base:null,
  blurb:'The sweet one that still carries protein. Goes better with coffee than eggs do.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Wholemeal toast',a:'1 slice',c:100,p:4},{n:'Cottage cheese',a:'200g',c:185,p:23},{n:'Honey',a:'1 tsp',c:20,p:0},{n:'Cinnamon',a:'a shake',c:0,p:0},{n:'Frozen mixed berries, thawed',a:'60g',c:30,p:1}],
- buy:[{n:'Cottage cheese',q:'2 tubs',c:'Dairy & eggs'},{n:'Honey',q:'1 jar',c:'Pantry'},{n:'Frozen mixed berries',q:'500g',c:'Frozen'}]},
+ buy:[{n:'Cottage cheese',q:'2 tubs',c:'Dairy & eggs'},{n:'Honey',q:'1 jar',c:'Pantry'},{n:'Frozen mixed berries',q:'100g',c:'Frozen'}]},
 {id:'b-weetbix',slot:'breakfast',name:'Weetbix, milk + protein',mins:2,base:null,
  blurb:'Weetbix on its own is 4g of protein. The scoop is what makes it a breakfast rather than a snack. Full-cream milk because that is the only milk in the house.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Weetbix',a:'2 biscuits',c:130,p:4},{n:'Full-cream milk',a:'150ml',c:98,p:5},{n:'Protein powder',a:'25g',c:95,p:22},{n:'Banana',a:'½',c:45,p:1}],
@@ -513,7 +513,7 @@ const MEALS = [
  blurb:'This one is not a compromise, it is the point. It is the biggest breakfast here by a distance, so keep the rest of that day lean and let it be.',
  portions:[{n:'Flat white, full cream',a:'1 regular',c:120,p:6},{n:'Pancakes',a:'3 small',c:330,p:9},{n:'Frozen mixed berries',a:'80g',c:40,p:1},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Maple syrup',a:'1 tbsp',c:55,p:0}],
  steps:['Make the batter with the four-year-old. That is half of what this meal is for.','Serve with yoghurt and berries rather than a jug of syrup on the table.','If you want to be careful, have two rather than four and a boiled egg alongside.'],
- buy:[{n:'Plain flour',q:'1 bag',c:'Pantry'},{n:'Maple syrup',q:'1 bottle',c:'Pantry'},{n:'Frozen mixed berries',q:'500g',c:'Frozen'}]},
+ buy:[{n:'Plain flour',q:'1 bag',c:'Pantry'},{n:'Maple syrup',q:'1 bottle',c:'Pantry'},{n:'Frozen mixed berries',q:'100g',c:'Frozen'}]},
 
 /* ---------------- AFTERNOON SNACK ---------------- */
 {id:'s-yog',slot:'snack1',name:'Protein yoghurt tub',mins:0,base:null,
@@ -527,7 +527,7 @@ const MEALS = [
 {id:'s-tuna',slot:'snack1',name:'Tuna on rice cakes',mins:2,base:null,
  blurb:'Highest protein-per-calorie snack on the list by a distance.',
  portions:[{n:'Tinned tuna, drained',a:'95g',c:110,p:24},{n:'Rice cakes',a:'2',c:55,p:2}],
- buy:[{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Rice cakes',q:'1 pkt',c:'Pantry'}]},
+ buy:[{n:'Tinned tuna',q:'2',c:'Pantry'},{n:'Rice cakes',q:'1 pkt',c:'Pantry'}]},
 {id:'s-shake',slot:'snack1',name:'Protein shake',mins:1,base:null,
  blurb:'For the days that get away from you. Water, not milk, keeps it at snack size.',
  portions:[{n:'Protein powder',a:'30g',c:120,p:25}],
@@ -545,17 +545,17 @@ const MEALS = [
 {id:'l-tuna',slot:'lunch',name:'Tuna sandwich',mins:5,base:null,
  blurb:'No prep dependency at all. Good for a week where Sunday did not happen.',
  portions:[{n:'Wholemeal bread',a:'2 slices',c:200,p:8},{n:'Tinned tuna',a:'95g',c:110,p:24},{n:'Light mayo',a:'15g',c:35,p:0},{n:'Cucumber, red onion',a:'plenty',c:10,p:1}],
- buy:[{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Red onion',q:'2',c:'Fruit & veg'}]},
+ buy:[{n:'Tinned tuna',q:'2',c:'Pantry'},{n:'Red onion',q:'1',c:'Fruit & veg'}]},
 {id:'l-egg',slot:'lunch',name:'Egg sandwich',mins:4,base:'eggs',
  blurb:'Lowest protein of the sandwiches, so pair it with the tuna snack that day.',
  portions:[{n:'Wholemeal bread',a:'2 slices',c:200,p:8},{n:'Boiled eggs, mashed',a:'2',c:145,p:13},{n:'Light mayo',a:'10g',c:25,p:0},{n:'Cress or rocket',a:'handful',c:5,p:0}]},
 {id:'l-beef-wrap',slot:'lunch',name:'Beef + tzatziki wrap',mins:5,base:'slow-beef',
  blurb:'Slow cooker beef on day two or three, when it is at its best.',
- portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Shredded beef',a:'110g',c:215,p:28},{n:'Tzatziki',a:'40g',c:35,p:2},{n:'Salad, pickled onion',a:'load it up',c:20,p:1}],
+ portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Shredded beef',a:'120g',c:215,p:22},{n:'Tzatziki',a:'40g',c:35,p:2},{n:'Salad, pickled onion',a:'load it up',c:20,p:1}],
  buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Tzatziki',q:'1 tub',c:'Dairy & eggs'}]},
 {id:'l-bowl',slot:'lunch',name:'Leftover rice bowl',mins:4,base:['rice','veg-tray'],leftoverProtein:true,
  blurb:'Whatever protein is in the fridge, over rice, with roast veg and a sauce. Roshani\'s version of your sandwich.',
- portions:[{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Any cooked protein',a:'130g',c:220,p:33},{n:'Roast veg',a:'150g',c:70,p:3},{n:'Sauce of choice',a:'2 tbsp',c:50,p:1}]},
+ portions:[{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Any cooked protein',a:'130g',c:220,p:33},{n:'Roast veg',a:'125g',c:70,p:2},{n:'Sauce of choice',a:'2 tbsp',c:50,p:1}]},
 {id:'l-salad',slot:'lunch',name:'Big protein salad',mins:6,base:null,leftoverProtein:true,
  blurb:'The lightest lunch here, which buys you room at dinner.',
  portions:[{n:'Leaves, cucumber, tomato',a:'a big bowl',c:60,p:4},{n:'Any cooked protein',a:'150g',c:250,p:36},{n:'Avocado',a:'30g',c:48,p:1},{n:'Vinaigrette',a:'1 tbsp',c:45,p:0}],
@@ -570,10 +570,10 @@ const MEALS = [
  buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Cos lettuce',q:'1',c:'Fruit & veg'},{n:'Light caesar dressing',q:'1 bottle',c:'Pantry'}]},
 {id:'l-currybowl',slot:'lunch',name:'Curry rice bowl',mins:4,base:['curry-base','rice'],
  blurb:'Straight out of the curry container, smaller than a dinner portion. The easiest lunch on the list when the base is in the fridge.',
- portions:[{n:'Curry base',a:'130g',c:230,p:31},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Green beans or spinach',a:'100g',c:30,p:2}]},
+ portions:[{n:'Curry base',a:'240g',c:230,p:30},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Green beans or spinach',a:'100g',c:30,p:2}]},
 {id:'l-quesadilla',slot:'lunch',name:'Beef quesadilla',mins:8,base:'mince-base',
  blurb:'Milan will eat this one without negotiation. Dry pan, no oil, press it flat and turn once.',
- portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Mince base',a:'100g',c:160,p:23},{n:'Grated cheese',a:'20g',c:80,p:6},{n:'Salsa and salad',a:'plenty',c:20,p:1}],
+ portions:[{n:'Wrap, large',a:'1',c:180,p:6},{n:'Mince base',a:'130g',c:160,p:23},{n:'Grated cheese',a:'20g',c:80,p:6},{n:'Salsa and salad',a:'plenty',c:20,p:1}],
  steps:['Mince and cheese over half the wrap, fold it over.','Dry pan on medium, 3 min a side, pressed down with a spatula.','Cut into wedges. Salsa and salad on the side rather than inside, so it stays crisp.'],
  buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Grated tasty cheese',q:'1 bag',c:'Dairy & eggs'},{n:'Salsa',q:'1 jar',c:'Pantry'}]},
 {id:'l-nasi',slot:'lunch',name:'Nasi goreng',mins:10,base:['eggs','rice'],leftoverProtein:true,
@@ -584,46 +584,46 @@ const MEALS = [
 {id:'l-tunabean',slot:'lunch',name:'Tuna and white bean salad',mins:5,base:null,
  blurb:'Entirely from the pantry, no prep dependency, and the lightest lunch here. Good on a day dinner is heavy.',
  portions:[{n:'Tinned tuna',a:'95g',c:110,p:24},{n:'Cannellini beans',a:'120g',c:130,p:8},{n:'Leaves, tomato, red onion',a:'a big bowl',c:40,p:3},{n:'Olive oil and lemon',a:'1 tsp',c:45,p:0}],
- buy:[{n:'Tinned cannellini beans',q:'2 tins',c:'Pantry'},{n:'Tinned tuna',q:'4 tins',c:'Pantry'},{n:'Mixed leaves',q:'1 bag',c:'Fruit & veg'}]},
+ buy:[{n:'Tinned cannellini beans',q:'2',c:'Pantry'},{n:'Tinned tuna',q:'2',c:'Pantry'},{n:'Mixed leaves',q:'1 bag',c:'Fruit & veg'}]},
 /* ---------------- DINNER ---------------- */
 {id:'d-curry',slot:'dinner',name:'Chicken curry + rice',mins:8,base:['curry-base','rice'],
- blurb:'Your household staple, unchanged. The coconut milk goes in per serve rather than into the batch, which is what keeps it measurable.',
- portions:[{n:'Curry base',a:'150g',c:265,p:36},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Light coconut milk',a:'60ml',c:45,p:0},{n:'Green beans, steamed',a:'100g',c:35,p:2}],
+ blurb:'Your household staple, unchanged. The coconut milk goes in per serve rather than into the batch, which is what keeps it measurable. You weigh 276g because a curry is chicken and sauce, not chicken.',
+ portions:[{n:'Curry base',a:'276g',c:265,p:35},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Light coconut milk',a:'60ml',c:45,p:0},{n:'Green beans, steamed',a:'100g',c:35,p:2}],
  steps:['Curry base into a pan with the coconut milk. 6 minutes on medium.','Rice from the fridge, 90 seconds in the microwave with a splash of water over it.','Beans in the microwave with a splash of water, 3 min.','Coriander and a squeeze of lime at the end. Milan gets his without chilli.'],
  buy:[{n:'Light coconut milk',q:'2 tins',c:'Pantry'},{n:'Green beans',q:'400g',c:'Fruit & veg'},{n:'Coriander, lime',q:'1 each',c:'Fruit & veg'}]},
 {id:'d-stirfry',slot:'dinner',name:'Malaysian chicken stir fry',mins:12,base:'poached-chicken',
  blurb:'Uses the poached chicken, so it is assembly rather than cooking. Sambal on the side so the four-year-old can opt out.',
  portions:[{n:'Poached chicken',a:'140g',c:230,p:43},{n:'Rice noodles, cooked',a:'150g',c:165,p:3},{n:'Stir-fry veg',a:'250g',c:75,p:5},{n:'Soy, sesame, ginger, garlic',a:'2 tbsp',c:70,p:1}],
  steps:['Noodles into boiled water off the heat, 5 min, drain.','Veg into a screaming hot wok or pan, 3 min. Do not crowd it.','Chicken in to warm through, 2 min. It is already cooked.','Sauce in last, toss, off the heat. Noodles through.'],
- buy:[{n:'Rice noodles',q:'1 pkt',c:'Pantry'},{n:'Stir-fry vegetables',q:'500g',c:'Fruit & veg'},{n:'Soy sauce',q:'1 bottle',c:'Pantry'},{n:'Sesame oil',q:'1 bottle',c:'Pantry'},{n:'Sambal oelek',q:'1 jar',c:'Pantry'}]},
+ buy:[{n:'Rice noodles',q:'200g',c:'Pantry'},{n:'Stir-fry vegetables',q:'500g',c:'Fruit & veg'},{n:'Soy sauce',q:'1 bottle',c:'Pantry'},{n:'Sesame oil',q:'1 bottle',c:'Pantry'},{n:'Sambal oelek',q:'1 jar',c:'Pantry'}]},
 {id:'d-joojeh',slot:'dinner',name:'Joojeh skewers + rice + salad shirazi',mins:15,base:['joojeh','rice'],
  blurb:'Persian food in a weeknight format. The marinade does the work on Sunday, the air fryer does the rest in fifteen minutes.',
- portions:[{n:'Joojeh chicken, cooked',a:'150g',c:250,p:36},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Salad shirazi',a:'150g',c:45,p:1},{n:'Yoghurt sauce',a:'60g',c:45,p:5},{n:'Grilled tomato',a:'1',c:20,p:1}],
+ portions:[{n:'Joojeh chicken, cooked',a:'155g',c:250,p:38},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Salad shirazi',a:'150g',c:45,p:1},{n:'Yoghurt sauce',a:'60g',c:45,p:5},{n:'Grilled tomato',a:'1',c:20,p:1}],
  steps:['Chicken out of the marinade onto skewers, or straight into the air fryer basket.','200°C, 15 min, shake at 8. Add a halved tomato for the last 6.','Salad shirazi: cucumber, tomato and onion in small dice, lime, salt, mint. Two minutes.','Rice from the fridge, reheated. Butter for them, none for you.'],
  buy:[{n:'Cucumber',q:'3',c:'Fruit & veg'},{n:'Tomatoes',q:'6',c:'Fruit & veg'},{n:'Mint',q:'1 bunch',c:'Fruit & veg'}]},
 {id:'d-salmon',slot:'dinner',name:'Air fryer salmon + rice + broccolini',mins:12,base:'rice',
  blurb:'The fastest genuine meal here. Salmon in the air fryer, rice out of the fridge, on the table in twelve minutes.',
  portions:[{n:'Salmon fillet',a:'150g',c:280,p:34},{n:'Rice, cooked',a:'120g',c:155,p:3},{n:'Broccolini',a:'150g',c:50,p:4},{n:'Olive oil, lemon, chilli',a:'1 tsp',c:40,p:0}],
  steps:['Salmon skin-side down in the air fryer, 200°C, 10 min. Salt and pepper only.','Broccolini in alongside for the last 6 min, or steamed in the microwave.','Lemon over everything at the end. Chilli flakes on the two adult plates.'],
- buy:[{n:'Salmon fillets',q:'3',c:'Meat & fish'},{n:'Broccolini',q:'2 bunches',c:'Fruit & veg'},{n:'Lemon',q:'2',c:'Fruit & veg'}]},
+ buy:[{n:'Salmon fillets',q:'3',c:'Meat & fish'},{n:'Broccolini',q:'2',c:'Fruit & veg'},{n:'Lemon',q:'2',c:'Fruit & veg'}]},
 {id:'d-mexican',slot:'dinner',name:'Mexican beef bowl',mins:10,base:['mince-base','rice'],
  blurb:'Bowl rather than wrap keeps the carb measurable. Milan builds his own, which is most of the appeal for him.',
- portions:[{n:'Mince base',a:'150g',c:240,p:34},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Lettuce, tomato, corn',a:'150g',c:60,p:3},{n:'Light sour cream',a:'40g',c:50,p:2},{n:'Avocado',a:'30g',c:48,p:1}],
+ portions:[{n:'Mince base',a:'194g',c:240,p:34},{n:'Rice, cooked',a:'100g',c:130,p:3},{n:'Lettuce, tomato, corn',a:'150g',c:60,p:3},{n:'Light sour cream',a:'40g',c:50,p:2},{n:'Avocado',a:'30g',c:48,p:1}],
  steps:['Mince base into a pan with 1 tsp smoked paprika, 1 tsp cumin, pinch of chilli. 5 min.','Everything into bowls on the table and let people build their own.','Milan gets a wrap if he wants one — same food, different vehicle.'],
  buy:[{n:'Smoked paprika, cumin',q:'1 each',c:'Pantry'},{n:'Light sour cream',q:'1 tub',c:'Dairy & eggs'},{n:'Avocado',q:'2',c:'Fruit & veg'},{n:'Tinned corn',q:'1 tin',c:'Pantry'},{n:'Lettuce',q:'1',c:'Fruit & veg'}]},
 {id:'d-bolognese',slot:'dinner',name:'Bolognese',mins:15,base:'mince-base',
  blurb:'Same mince base, three nights later, and nobody notices it is the same starting point. Grated carrot and zucchini go in unannounced.',
- portions:[{n:'Mince base',a:'150g',c:240,p:34},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'150g',c:50,p:3},{n:'Parmesan',a:'10g',c:40,p:4}],
+ portions:[{n:'Mince base',a:'194g',c:240,p:34},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'150g',c:50,p:3},{n:'Parmesan',a:'10g',c:40,p:4}],
  steps:['Pasta on. Weigh yours dry at 60g — after cooking it is impossible to judge.','Mince base with passata, oregano, a bay leaf and grated carrot and zucchini. Simmer while the pasta cooks.','Sauce over pasta rather than pasta into sauce, so your portion stays yours.'],
- buy:[{n:'Pasta',q:'500g',c:'Pantry'},{n:'Parmesan',q:'1 block',c:'Dairy & eggs'},{n:'Passata',q:'1 bottle',c:'Pantry'},{n:'Dried oregano',q:'1',c:'Pantry'}]},
+ buy:[{n:'Pasta',q:'200g',c:'Pantry'},{n:'Parmesan',q:'1 block',c:'Dairy & eggs'},{n:'Passata',q:'1 bottle',c:'Pantry'},{n:'Dried oregano',q:'1',c:'Pantry'}]},
 {id:'d-creamy',slot:'dinner',name:"Roshani's creamy pasta, adjusted",mins:20,base:null,
  blurb:'Half the cream swapped for light cooking cream, chicken added, your pasta weighed. It tastes the same and it fits.',
  portions:[{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Chicken, diced',a:'100g',c:165,p:31},{n:'Bacon',a:'20g',c:55,p:5},{n:'Mushroom + broccolini',a:'150g',c:50,p:4},{n:'Light cooking cream',a:'60ml',c:90,p:2}],
  steps:['Bacon rendered first, then chicken in the same pan.','Mushrooms in, cooked hard until they colour. Broccolini in for the last 3 min.','Light cream and a ladle of pasta water. Reduce, do not boil.','Weigh your pasta dry. This is the meal where estimating goes wrong.'],
- buy:[{n:'Bacon',q:'1 pkt',c:'Meat & fish'},{n:'Mushrooms',q:'400g',c:'Fruit & veg'},{n:'Light cooking cream',q:'1 carton',c:'Dairy & eggs'},{n:'Broccolini',q:'2 bunches',c:'Fruit & veg'}]},
+ buy:[{n:'Chicken breast',q:'400g',c:'Meat & fish'},{n:'Pasta',q:'200g',c:'Pantry'},{n:'Bacon',q:'1 pkt',c:'Meat & fish'},{n:'Mushrooms',q:'400g',c:'Fruit & veg'},{n:'Light cooking cream',q:'1 carton',c:'Dairy & eggs'},{n:'Broccolini',q:'2',c:'Fruit & veg'}]},
 {id:'d-beef-mash',slot:'dinner',name:'Slow cooker beef + mash',mins:15,base:'slow-beef',
  blurb:'Sunday night food. Cook it while you do the rest of the prep session and it costs you nothing extra.',
- portions:[{n:'Shredded beef',a:'150g',c:290,p:38},{n:'Potato mash',a:'180g',c:170,p:4},{n:'Green vegetables',a:'150g',c:45,p:3}],
+ portions:[{n:'Shredded beef',a:'160g',c:290,p:29},{n:'Potato mash',a:'180g',c:170,p:4},{n:'Green vegetables',a:'150g',c:45,p:3}],
  steps:['Beef is already done. Reduce a ladle of the cooking liquid hard for 3 min to make a gravy.','Mash with milk and a little stock rather than butter and cream. Nobody can tell.','Peas or beans. Milan will eat peas.'],
  buy:[{n:'Potatoes',q:'1.5kg',c:'Fruit & veg'},{n:'Frozen peas',q:'1 bag',c:'Frozen'}]},
 {id:'d-poke',slot:'dinner',name:'Poke bowl',mins:8,base:'rice',
@@ -633,14 +633,14 @@ const MEALS = [
  buy:[{n:'Salmon (sashimi or smoked)',q:'400g',c:'Meat & fish'},{n:'Frozen edamame',q:'1 bag',c:'Frozen'},{n:'Nori sheets',q:'1 pkt',c:'Pantry'},{n:'Rice vinegar',q:'1 bottle',c:'Pantry'},{n:'Light mayonnaise',q:'1 jar',c:'Pantry'},{n:'Sambal oelek',q:'1 jar',c:'Pantry'}]},
 {id:'d-thighs',slot:'dinner',name:'Air fryer chicken thighs + roast veg',mins:25,base:'veg-tray',
  blurb:'Twenty-five minutes but only five of them are yours. Start it, go do something else.',
- portions:[{n:'Chicken thigh, skinless',a:'150g',c:265,p:36},{n:'Roast potato',a:'150g',c:145,p:3},{n:'Roast veg',a:'200g',c:90,p:4},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5}],
+ portions:[{n:'Chicken thigh, skinless',a:'127g',c:265,p:33},{n:'Roast potato',a:'150g',c:145,p:3},{n:'Roast veg',a:'160g',c:90,p:3},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5}],
  steps:['Thighs rubbed with paprika, garlic powder, salt. Air fryer 200°C, 18 min.','Potatoes in the oven or a second air fryer round, 25 min.','Roast veg from the Sunday tray, reheated for the last 5 min.','Yoghurt, crushed garlic, lemon, salt. Thirty seconds and it lifts the whole plate.'],
  buy:[{n:'Chicken thigh fillet, skinless',q:'800g',c:'Meat & fish'},{n:'Potatoes',q:'1kg',c:'Fruit & veg'},{n:'Garlic powder, paprika',q:'1 each',c:'Pantry'}]},
 {id:'d-fish',slot:'dinner',name:'Steamed ginger fish + rice',mins:15,base:'rice',
  blurb:'The lightest dinner on the list, which makes it the one to use on a day you have eaten out at lunch.',
  portions:[{n:'White fish fillet',a:'180g',c:170,p:38},{n:'Rice, cooked',a:'150g',c:195,p:4},{n:'Bok choy',a:'150g',c:30,p:3},{n:'Soy, ginger, sesame, spring onion',a:'2 tbsp',c:70,p:1}],
  steps:['Fish on a plate with julienned ginger, in a steamer or over simmering water, 8–10 min.','Bok choy in for the last 3 min.','Soy and a spoon of hot sesame oil poured over at the table. The sizzle is the whole trick and Milan will want to watch it.'],
- buy:[{n:'White fish fillets (barramundi, snapper)',q:'3',c:'Meat & fish'},{n:'Bok choy',q:'2 bunches',c:'Fruit & veg'},{n:'Spring onions',q:'1 bunch',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'}]},
+ buy:[{n:'White fish fillets (barramundi, snapper)',q:'3',c:'Meat & fish'},{n:'Bok choy',q:'2',c:'Fruit & veg'},{n:'Spring onions',q:'1 bunch',c:'Fruit & veg'},{n:'Ginger',q:'1 knob',c:'Fruit & veg'}]},
 {id:'d-bought',slot:'dinner',name:'Bought and measured',mins:5,base:null,
  blurb:'Not a failure. A ready meal with a nutrition panel is more accurate than something you cooked and estimated. Look for 450–550 cal and 35g+ protein.',
  portions:[{n:'Ready meal (Coles, My Muscle Chef, Youfoodz)',a:'1',c:480,p:38},{n:'Side of steamed veg',a:'150g',c:50,p:3}],
@@ -648,14 +648,14 @@ const MEALS = [
 
 {id:'d-laksa',slot:'dinner',name:'Chicken laksa-style noodle soup',mins:12,base:'curry-base',
  blurb:'Same curry base, completely different meal. Loosen it with stock and coconut milk and it stops being a curry.',
- portions:[{n:'Curry base',a:'150g',c:265,p:36},{n:'Rice noodles, cooked',a:'120g',c:130,p:2},{n:'Light coconut milk + stock',a:'80ml',c:60,p:1},{n:'Bean sprouts, bok choy',a:'150g',c:35,p:3},{n:'Boiled egg',a:'1',c:72,p:6}],
+ portions:[{n:'Curry base',a:'276g',c:265,p:35},{n:'Rice noodles, cooked',a:'120g',c:130,p:2},{n:'Light coconut milk + stock',a:'80ml',c:60,p:1},{n:'Bean sprouts, bok choy',a:'150g',c:35,p:3},{n:'Boiled egg',a:'1',c:72,p:6}],
  steps:['Curry base into a pot with 250ml stock and the coconut milk. Simmer 6 min.','Noodles in bowls, soup over the top.','Bean sprouts, coriander, lime and half a boiled egg on each. Milan gets his noodles separate with a little broth.'],
- buy:[{n:'Bean sprouts',q:'1 bag',c:'Fruit & veg'},{n:'Bok choy',q:'2 bunches',c:'Fruit & veg'},{n:'Rice noodles',q:'1 pkt',c:'Pantry'},{n:'Chicken stock',q:'500ml',c:'Pantry'}]},
+ buy:[{n:'Bean sprouts',q:'1 bag',c:'Fruit & veg'},{n:'Bok choy',q:'2',c:'Fruit & veg'},{n:'Rice noodles',q:'200g',c:'Pantry'},{n:'Chicken stock',q:'250ml',c:'Pantry'}]},
 {id:'d-ragu',slot:'dinner',name:'Slow beef ragu + pasta',mins:12,base:'slow-beef',
  blurb:'The second life of the slow cooker beef. Shredded through pasta it reads as a different meal entirely.',
- portions:[{n:'Shredded beef',a:'130g',c:250,p:33},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'120g',c:45,p:2},{n:'Parmesan',a:'8g',c:32,p:3}],
+ portions:[{n:'Shredded beef',a:'135g',c:250,p:24},{n:'Pasta, dry',a:'60g',c:210,p:7},{n:'Passata, herbs, grated veg',a:'120g',c:45,p:2},{n:'Parmesan',a:'8g',c:32,p:3}],
  steps:['Beef and its liquid into a pan with passata and grated carrot. Reduce hard, 8 min.','Pasta on at the same time. Weigh yours dry.','Toss with a splash of pasta water so it clings.'],
- buy:[{n:'Pasta',q:'500g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}]},
+ buy:[{n:'Pasta',q:'200g',c:'Pantry'},{n:'Passata',q:'1 bottle',c:'Pantry'}]},
 {id:'d-friedrice',slot:'dinner',name:'Chicken fried rice',mins:12,base:['poached-chicken','rice'],
  blurb:'Uses the poached chicken and whatever veg is going soft. The fastest way to clear the crisper drawer.',
  portions:[{n:'Poached chicken',a:'120g',c:200,p:37},{n:'Rice, cooked and cold',a:'130g',c:170,p:3},{n:'Egg',a:'1',c:72,p:6},{n:'Peas, carrot, spring onion',a:'120g',c:55,p:3},{n:'Soy and sesame oil',a:'1 tbsp',c:55,p:1}],
@@ -663,14 +663,14 @@ const MEALS = [
  buy:[{n:'Frozen peas',q:'1 bag',c:'Frozen'},{n:'Spring onions',q:'1 bunch',c:'Fruit & veg'},{n:'Sesame oil',q:'1 bottle',c:'Pantry'}]},
 {id:'d-joojeh-wrap',slot:'dinner',name:'Joojeh wraps',mins:15,base:'joojeh',
  blurb:'Same marinated chicken as the skewers, built at the table. Milan assembling his own is most of the appeal.',
- portions:[{n:'Joojeh chicken, cooked',a:'130g',c:215,p:31},{n:'Wrap, large',a:'1',c:180,p:6},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5},{n:'Hummus',a:'30g',c:80,p:2},{n:'Salad, pickled onion',a:'plenty',c:25,p:1},{n:'Grilled tomato',a:'1',c:20,p:1}],
+ portions:[{n:'Joojeh chicken, cooked',a:'135g',c:215,p:33},{n:'Wrap, large',a:'1',c:180,p:6},{n:'Yoghurt garlic sauce',a:'60g',c:45,p:5},{n:'Hummus',a:'30g',c:80,p:2},{n:'Salad, pickled onion',a:'plenty',c:25,p:1},{n:'Grilled tomato',a:'1',c:20,p:1}],
  steps:['Chicken in the air fryer, 200C, 15 min.','Wraps warmed in a dry pan for 20 seconds a side.','Everything on the table, everyone builds their own.'],
- buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Hummus',q:'1 tub',c:'Dairy & eggs'},{n:'Red onion',q:'2',c:'Fruit & veg'}]},
+ buy:[{n:'Wraps',q:'1 pkt',c:'Bakery'},{n:'Hummus',q:'1 tub',c:'Dairy & eggs'},{n:'Red onion',q:'1',c:'Fruit & veg'}]},
 {id:'d-prawn',slot:'dinner',name:'Garlic prawn noodles',mins:12,base:null,
  blurb:'Prawns cook in four minutes, which makes this the fastest dinner in the library after the salmon.',
  portions:[{n:'Prawns, peeled',a:'180g',c:180,p:36},{n:'Rice noodles, cooked',a:'150g',c:165,p:3},{n:'Garlic, chilli, oil',a:'1 tbsp',c:120,p:0},{n:'Asian greens',a:'150g',c:45,p:3},{n:'Soy and lime',a:'1 tbsp',c:20,p:1}],
  steps:['Garlic gently in the oil first, do not brown it.','Prawns in, 90 seconds a side, out of the pan the moment they turn.','Greens and noodles in, prawns back, soy and lime off the heat.'],
- buy:[{n:'Prawns, peeled (fresh or frozen)',q:'600g',c:'Meat & fish'},{n:'Asian greens',q:'2 bunches',c:'Fruit & veg'},{n:'Rice noodles',q:'1 pkt',c:'Pantry'}]},
+ buy:[{n:'Prawns, peeled (fresh or frozen)',q:'600g',c:'Meat & fish'},{n:'Asian greens',q:'2',c:'Fruit & veg'},{n:'Rice noodles',q:'200g',c:'Pantry'}]},
 {id:'d-dhal',slot:'dinner',name:'Pressure cooker dhal + rice',mins:15,base:'rice',
  blurb:'Cheap, high fibre and a genuinely good meatless night. Protein is lower than the other dinners at 31g, so pair it with a high-protein snack that day.',
  portions:[{n:'Red lentil dhal',a:'200g',c:225,p:13},{n:'Rice, cooked',a:'120g',c:155,p:3},{n:'Greek yoghurt',a:'80g',c:75,p:7},{n:'Boiled egg',a:'1',c:72,p:6},{n:'Spinach and tomato',a:'100g',c:30,p:2}],
@@ -678,9 +678,9 @@ const MEALS = [
  buy:[{n:'Red lentils',q:'500g',c:'Pantry'},{n:'Ground cumin, turmeric',q:'1 each',c:'Pantry'},{n:'Baby spinach',q:'1 bag',c:'Fruit & veg'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]},
 {id:'d-frittata',slot:'dinner',name:'Roast veg frittata',mins:20,base:'veg-tray',
  blurb:'Second use for the Sunday veg tray, and it is egg-forward rather than meat-forward, which makes it a cheap night. Cold leftovers are a good lunch the next day.',
- portions:[{n:'Eggs',a:'4',c:290,p:25},{n:'Roast veg',a:'200g',c:90,p:4},{n:'Feta',a:'40g',c:105,p:6},{n:'Rocket salad',a:'a big handful',c:30,p:2}],
+ portions:[{n:'Eggs',a:'4',c:290,p:25},{n:'Roast veg',a:'160g',c:90,p:3},{n:'Feta',a:'40g',c:105,p:6},{n:'Rocket salad',a:'a big handful',c:30,p:2}],
  steps:['Oven to 190C. Eight eggs beaten with salt and pepper for the three of you.','Roast veg spread in an oven-proof pan, egg poured over, feta crumbled on top.','12 minutes in the oven until just set in the middle. It keeps cooking after it comes out.','Cut into wedges. Milan will eat it if the veg pieces are big enough to pick around.'],
- buy:[{n:'Eggs',q:'1 dozen',c:'Dairy & eggs'},{n:'Feta',q:'1 block',c:'Dairy & eggs'},{n:'Rocket',q:'1 bag',c:'Fruit & veg'}]},
+ buy:[{n:'Eggs',q:'8',c:'Dairy & eggs'},{n:'Feta',q:'1 block',c:'Dairy & eggs'},{n:'Rocket',q:'1 bag',c:'Fruit & veg'}]},
 /* ---------------- LATE SNACK ---------------- */
 {id:'n-popcorn',slot:'snack2',name:'Air-popped popcorn',mins:4,base:null,
  blurb:'Thirty grams dry makes a genuinely large bowl. Volume is what you are after at 10pm, not nutrition.',
@@ -692,7 +692,7 @@ const MEALS = [
 {id:'n-yog',slot:'snack2',name:'Protein yoghurt + frozen berries',mins:1,base:null,
  blurb:'The frozen berries make it last twice as long as it should. Best of the late options.',
  portions:[{n:'Protein yoghurt',a:'170g',c:120,p:19},{n:'Frozen mixed berries',a:'50g',c:25,p:1}],
- buy:[{n:'Frozen mixed berries',q:'500g',c:'Frozen'}]},
+ buy:[{n:'Frozen mixed berries',q:'150g',c:'Frozen'}]},
 {id:'n-sticks',slot:'snack2',name:'Veg sticks + tzatziki',mins:1,base:'crunch-box',
  blurb:'Loud, which is half of what you actually want while you are coding.',
  portions:[{n:'Cucumber, carrot, capsicum sticks',a:'a big handful',c:60,p:2},{n:'Tzatziki',a:'2 tbsp',c:60,p:2}],
@@ -703,12 +703,12 @@ const MEALS = [
  buy:[{n:'Rice cakes',q:'1 pkt',c:'Pantry'},{n:'Vegemite',q:'1 jar',c:'Pantry'}]},
 {id:'n-edamame',slot:'snack2',name:'Salted edamame',mins:4,base:null,
  blurb:'Podding them slows you down, which is the point. Also the only late snack with real protein.',
- portions:[{n:'Edamame, in pod',a:'100g',c:120,p:11}],
+ portions:[{n:'Edamame, in pod',a:'220g',c:120,p:11}],
  buy:[{n:'Frozen edamame',q:'1 bag',c:'Frozen'}]},
 {id:'n-berries',slot:'snack2',name:'Frozen berries + a spoon of yoghurt',mins:1,base:null,
  blurb:'Eaten half-frozen it behaves like sorbet. Scratches the dessert itch.',
  portions:[{n:'Frozen mixed berries',a:'120g',c:70,p:1},{n:'Greek yoghurt',a:'50g',c:45,p:5}],
- buy:[{n:'Frozen mixed berries',q:'500g',c:'Frozen'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]}
+ buy:[{n:'Frozen mixed berries',q:'250g',c:'Frozen'},{n:'Greek yoghurt',q:'1 tub',c:'Dairy & eggs'}]}
 ];
 
 /* Kindy box components — 2 supplied days a week */
@@ -1276,18 +1276,59 @@ function openPrep(which){
   showDrawer(state.view==='current'?'This week':'Next week', title, `<div>Hands-on<b class="mono">${mins} min</b></div><div>Tasks<b class="mono">${list.length}</b></div>`, body);
 }
 
-function openShop(){
-  const w = wk();
+/* ---------- shopping quantities ----------
+   Two meals wanting the same thing is not the same as needing twice as much. A
+   pack word (jar, bottle, loaf) is a container: however many meals want soy sauce,
+   you buy one bottle. Anything else is an amount, and amounts add up. */
+const PACKS = ['jar','bottle','pkt','packet','bag','tub','loaf','box','bunch','head',
+               'knob','bulb','punnet','carton','block','tin','can','dozen'];
+const SCALE = { kg:['g',1000], g:['g',1], l:['ml',1000], ml:['ml',1] };
+
+function parseQty(q){
+  const m = /^(\d+(?:\.\d+)?)\s*(.*)$/.exec(String(q).trim());
+  if(!m) return null;
+  let n = parseFloat(m[1]), u = m[2].trim().toLowerCase();
+  const sc = SCALE[u];
+  if(sc){ n *= sc[1]; u = sc[0]; }
+  else u = u.replace(/(es|s)$/,'');                 // bunches -> bunch, tubs -> tub
+  return { n, u, pack: u.split(/[\s×]+/).some(w=>PACKS.includes(w)) };
+}
+function fmtQty(n, u){
+  const r = x => +x.toFixed(2);
+  if(u==='g'  && n>=1000) return `${r(n/1000)}kg`;
+  if(u==='ml' && n>=1000) return `${r(n/1000)}L`;
+  if(u==='g' || u==='ml') return `${Math.round(n)}${u}`;
+  if(!u) return `${r(n)}`;
+  return `${r(n)} ${u}${n>1 && u!=='dozen' && /^[a-z]+$/.test(u) ? 's' : ''}`;
+}
+/* One line out of however many meals asked for it. */
+function totalQty(qs){
+  const parts = qs.map(parseQty);
+  if(parts.every(Boolean) && new Set(parts.map(x=>x.u)).size===1){
+    const nums = parts.map(x=>x.n);
+    return fmtQty(parts[0].pack ? Math.max(...nums) : nums.reduce((a,b)=>a+b,0), parts[0].u);
+  }
+  return [...new Set(qs)].join(' + ');                // shouldn't happen; a test guards it
+}
+
+function shoppingList(w){
   const items = new Map();
-  const add = b => { const k=b.n.toLowerCase(); if(!items.has(k)) items.set(k,{...b, times:1}); else items.get(k).times++; };
-  const seenPrep = new Set();
+  const add = b => { const k=b.n.toLowerCase();
+    if(!items.has(k)) items.set(k,{...b, qs:[b.q]}); else items.get(k).qs.push(b.q); };
+  const seenPrep = new Set(), seenMeal = new Set();
   w.days.forEach(d=>SLOTS.forEach(s=>{
     const m=byId(d[s.k]); if(!m) return;
-    (m.buy||[]).forEach(add);
+    if(!seenMeal.has(m.id)){ seenMeal.add(m.id); (m.buy||[]).forEach(add); }
     basesOf(m).forEach(b=>{ if(seenPrep.has(b)) return; seenPrep.add(b); (PREP[b].buy||[]).forEach(add); });
   }));
   if(w.kindy.length && !seenPrep.has('crunch-box')) (PREP['crunch-box'].buy||[]).forEach(add);
   STAPLES.forEach(add);
+  return items;
+}
+
+function openShop(){
+  const w = wk();
+  const items = shoppingList(w);
 
   const cats = ['Meat & fish','Fruit & veg','Dairy & eggs','Bakery','Frozen','Pantry'];
   let body = `<p class="d-blurb">Built from ${state.view==='current'?'this week':'next week'}'s meals and their prep, plus the coffee and milk you go through regardless. Pantry items are listed even if you already have them &mdash; glance down the list rather than trusting memory.</p>`;
@@ -1295,7 +1336,7 @@ function openShop(){
     const rows=[...items.values()].filter(x=>x.c===c);
     if(!rows.length) return;
     body += `<div class="cat-h">${c}</div><ul class="plain">` +
-      rows.map(r=>`<li>${r.n}<b class="mono">${r.q}${r.times>1?` &times;${r.times}`:''}</b></li>`).join('') + `</ul>`;
+      rows.map(r=>`<li>${r.n}<b class="mono">${totalQty(r.qs)}</b></li>`).join('') + `</ul>`;
   });
   showDrawer(state.view==='current'?'This week':'Next week', 'Shopping list', `<div>Lines<b class="mono">${items.size}</b></div>`, body);
 }

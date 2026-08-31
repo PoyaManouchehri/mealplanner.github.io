@@ -67,11 +67,15 @@ Adding meals should never require touching anything below that line.
 - `buy[]` is `{n, q, c}` — category `c` must be one of: `Meat & fish`, `Fruit & veg`,
   `Dairy & eggs`, `Bakery`, `Frozen`, `Pantry`. Anything else silently vanishes from
   the shopping list.
+- **`q` is a week's worth of that ingredient for this meal**, not a per-serve amount
+  and not a per-day amount. A meal landing on three days is still shopped for once.
+  See **Shopping quantities**.
 - `steps[]` optional. Omit for assembly-only meals; the docket says so itself.
 
 ```js
 // A prep item
-{ name, mins, feeds, keeps, storage, topUpMins?, staple?, protein?, freezes?, steps:[], buy:[] }
+{ name, mins, feeds, keeps, storage, portion?, per100?, topUpMins?, staple?,
+  protein?, freezes?, steps:[], buy:[] }
 ```
 
 - `keeps` is shelf life in days. **Required.** It drives the whole prep schedule.
@@ -83,6 +87,10 @@ Adding meals should never require touching anything below that line.
   not cluster the week. Rice is the only one. See the generation rules.
 - `protein: true` marks the five batch proteins. Only these satisfy a
   `leftoverProtein` meal.
+- `portion` is the portion name meals use for this batch, and `per100` is `{c, p}`
+  for 100g of the **finished** batch, derived from that item's own recipe. Together
+  they let a test hold every portion to the density of the thing it came from. See
+  **Calories**.
 - `topUpMins` is the cheaper cost when the item is already made in the earlier
   session and only needs a small second batch. Only for assembly items (oats,
   cut veg), never for anything that involves actual cooking.
@@ -127,6 +135,7 @@ These were all found by testing and regressions are easy. Keep them true.
 12. Nothing stored in the freezer appears in the Wednesday top-up.
 13. The shopping list names one milk, one rice and one type of berry. See
     **One of each thing**.
+14. Every portion drawn from a batch matches that batch's `per100` within 10%.
 
 ## Generation rules
 
@@ -144,6 +153,54 @@ These were all found by testing and regressions are easy. Keep them true.
   session, or they force a second cook.
 - **Oats** pick 2–3 non-adjacent days from Mon–Fri, retrying up to 8 times.
 - Pancakes are pinned to one weekend day and are the one deliberate calorie overshoot.
+
+## Calories
+
+Calories are the number this app exists for, so the portion table has to be right
+about what a weighed amount actually is.
+
+A batch is not the meat that went into it. 1.2kg of raw thigh, a tin of tomato, two
+onions and a spoon of oil make **1975g** of curry base carrying 1900 kcal — that is
+96 kcal per 100g, and the chicken is a bit over half of it by weight. So a 265 kcal
+serve of curry is **276g on the scale**, not 150g. Pricing 150g of a stew as if it
+were 150g of chicken is how a day quietly runs 300 kcal short of what it claims.
+
+Every batch declares `per100` derived from its own recipe, and a test fails if any
+portion drawn from it is more than 10% off. When you change a batch recipe, redo
+`per100` and re-weigh the portions that use it.
+
+Portion **calories** are the fixed point: they were tuned against the slot budgets,
+so when a density is corrected the grams move and the calories stay. The gram amounts
+then set the batch sizes, which is why `buy` quantities and the numbers in `steps`
+have to be revisited at the same time.
+
+Densities that check out against reference values and should be left alone: poached
+breast at 165/100g, rice at 130, pasta at 350 dry, oats at 375, the dairy, the oils.
+
+## Shopping quantities
+
+The list merges lines by ingredient name and then has to decide what the merged
+quantity is. Two meals wanting the same thing is not the same as needing twice as
+much, so `totalQty()` splits on the unit:
+
+- **Pack words** — jar, bottle, pkt, bag, tub, loaf, box, bunch, head, knob, bulb,
+  punnet, carton, block, tin, can, dozen — are containers. Three meals wanting soy
+  sauce is **one bottle**, so packs take the max. A unit that merely *mentions* a
+  pack counts as one, so `500g tub` is a tub, not 500 grams.
+- **Everything else** is an amount and amounts **add up**: 600g of thigh for the
+  joojeh plus 800g for the air fryer is 1.4kg of thigh. `kg`/`L` normalise to `g`/`ml`
+  and come back out as kg or L over 1000.
+
+Two consequences for the data. Sources of the same ingredient must **agree on the
+unit** — `1 bag` and `4` cannot be added, and there's a test that fails if any two
+sources disagree. And anything that should accumulate must be written as a weight or
+a bare count, never as a pack: eggs are `10`, `8`, `4` rather than `1 dozen` three
+times, tuna is `2` rather than `4 tins`.
+
+Batch sizes assume the household eats it: a dinner is Poya's portion **×2.5** (two
+adults and the four-year-old), a lunch is **×2**, breakfasts and snacks are his
+alone. A base used in a week gets eaten to the tune of roughly a kilo of finished
+food, which is what the buy quantities are sized against.
 
 ## State and storage
 

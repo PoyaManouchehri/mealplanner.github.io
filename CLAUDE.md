@@ -23,6 +23,7 @@ Don't change these unless asked directly.
 | Weeknight cooking cap | 20–30 min, or he orders in instead |
 | Prep sessions | Sunday before the week (~45 min) + Wednesday top-up (~30 min) |
 | Daily coffee | one full-cream flat white, 120 kcal, counted in every breakfast |
+| Groceries | one type of each staple — one milk, one rice, one bag of berries |
 
 ## File layout
 
@@ -34,6 +35,7 @@ Everything is in `index.html`, in this order:
    - `SYNC` — optional cloud sync config
    - `TARGETS` / `DAILY` — calorie budgets
    - `PREP` — batch prep items
+   - `STAPLES` — bought every week regardless of the board (coffee, milk)
    - `MEALS` — the meal library
    - `KINDY` — kindy box components
    - `/* ===== APP ===== */` banner, then all logic
@@ -45,7 +47,7 @@ Adding meals should never require touching anything below that line.
 
 ```js
 // A meal
-{ id, slot, name, mins, base, blurb, portions:[], steps:[], buy:[], weekend? }
+{ id, slot, name, mins, base, blurb, portions:[], steps:[], buy:[], weekend?, leftoverProtein? }
 ```
 
 - `slot` is one of `breakfast | snack1 | lunch | dinner | snack2`. `snack1` is the
@@ -57,7 +59,11 @@ Adding meals should never require touching anything below that line.
   read from the same source so they can't disagree.
 - `portions[]` is `{n: name, a: amount, c: calories, p: protein}`. Amounts are
   strings ("150g", "2 slices") because some are countable.
-- `base` names a `PREP` entry this meal depends on, or `null`. Must exist in `PREP`.
+- `base` names a `PREP` entry this meal depends on, or a **list** of them, or
+  `null`. Every id must exist in `PREP`. Use `basesOf(m)` to read it — never
+  `m.base` directly, it may be a string or an array. `mainBases(m)` drops staples.
+- `leftoverProtein: true` marks a meal whose portions say "any cooked protein" —
+  it only lands on a day when a batch protein is actually in the fridge.
 - `buy[]` is `{n, q, c}` — category `c` must be one of: `Meat & fish`, `Fruit & veg`,
   `Dairy & eggs`, `Bakery`, `Frozen`, `Pantry`. Anything else silently vanishes from
   the shopping list.
@@ -65,10 +71,18 @@ Adding meals should never require touching anything below that line.
 
 ```js
 // A prep item
-{ name, mins, feeds, keeps, topUpMins?, steps:[], buy:[] }
+{ name, mins, feeds, keeps, storage, topUpMins?, staple?, protein?, freezes?, steps:[], buy:[] }
 ```
 
 - `keeps` is shelf life in days. **Required.** It drives the whole prep schedule.
+- `storage` is `'fridge'` or `'freezer'`. **Required.** Everything is fridge except
+  frozen grapes. `keeps` is a *fridge* shelf life unless storage says otherwise.
+- `freezes: true` is display only — it tells you a batch can be doubled and half put
+  away, nothing in the scheduler reads it.
+- `staple: true` means the item is prepped and scheduled like anything else but does
+  not cluster the week. Rice is the only one. See the generation rules.
+- `protein: true` marks the five batch proteins. Only these satisfy a
+  `leftoverProtein` meal.
 - `topUpMins` is the cheaper cost when the item is already made in the earlier
   session and only needs a small second batch. Only for assembly items (oats,
   cut veg), never for anything that involves actual cooking.
@@ -86,6 +100,10 @@ appears in **both** sessions — that's correct, not a bug.
 The two prep cards sit in a rail **above** the calendar, deliberately outside the
 seven days, because neither session happens on a day shown in the week.
 
+Rice is the exception that proves the model: it keeps 4 days, so a full week always
+needs two batches. That is a genuine second cook, not a top-up, and it is why rice
+has no `topUpMins`.
+
 ## Invariants
 
 These were all found by testing and regressions are easy. Keep them true.
@@ -97,8 +115,18 @@ These were all found by testing and regressions are easy. Keep them true.
 5. No breakfast appears three days running.
 6. No lunch repeats back to back (leftovers excepted).
 7. No batch protein is cooked twice in one week. Only assembly items
-   (oats, crunch box) and the 2-day joojeh marinade may appear in both sessions.
+   (oats, crunch box), the 2-day joojeh marinade and rice may appear in both
+   sessions.
 8. Every day has all five slots filled.
+9. Every meal whose portions include cooked rice declares the `rice` base. This is
+   the bug class that started all of this — a meal quietly assuming leftovers the
+   plan never created.
+10. A lunch never forces its own extra cook: every main base a lunch leans on is
+    already being cooked that session for some other meal.
+11. A `leftoverProtein` meal only lands on a day with a covered `protein` batch.
+12. Nothing stored in the freezer appears in the Wednesday top-up.
+13. The shopping list names one milk, one rice and one type of berry. See
+    **One of each thing**.
 
 ## Generation rules
 
@@ -107,6 +135,11 @@ These were all found by testing and regressions are easy. Keep them true.
   are cook-fresh or bought. This is what keeps prep at ~70 min total instead of ~145.
 - **Give every new prep base two dinners.** A base with one dinner forces the
   generator to spread prep across more bases and inflates both sessions.
+- **Staples don't cluster.** Rice backs half the dinners, so clustering on it would
+  put two rice dinners together and defeat the protein clustering entirely. Dinner
+  placement, the filler pool and the batch/plain lunch split all read `mainBases()`,
+  which drops staples. Staples need no coverage check — the prep scheduler cooks
+  them for whatever day asks.
 - **Base-dependent lunches** may only land on days already covered by that base's
   session, or they force a second cook.
 - **Oats** pick 2–3 non-adjacent days from Mon–Fri, retrying up to 8 times.
@@ -157,6 +190,27 @@ weights that read like a scale display.
   used on a phone.
 - Below 640px the board becomes one day per row with 48px touch targets.
 
+## One of each thing
+
+Two kinds of the same grocery means one of them goes off in the fridge door, so the
+library buys **one** of each staple and every meal bends to it:
+
+- **Milk is full cream**, because the daily coffee needs it. Nothing asks for skim.
+- **Rice is basmati**, for the poke bowl as much as the curry. No sushi rice.
+- **Berries are one bag of frozen mixed**, in the oats, on the pancakes, in the late
+  snack. No separate punnet of blueberries or bag of raspberries.
+- Heat comes from the **sambal** jar, not a second bottle of sriracha.
+
+`STAPLES` covers the things bought every week whatever the board says. It exists
+because the coffee is in all seven breakfasts and its milk was on no shopping list
+at all. Two tests guard this: one fails if the shopping list ever names two milks,
+two rices or two berries, and one fails if a portion asks for a milk that isn't full
+cream. If you add a meal, use the ingredient that's already there.
+
+Still deliberately two of a kind, because they are genuinely different foods:
+Greek yoghurt (sauces, marinade) vs protein yoghurt (single-serve, 20g protein);
+brown onion (cooking) vs red (raw); chicken stock vs beef stock.
+
 ## Writing style for meal content
 
 Blurbs are one or two sentences, plain and practical, second person. They say why a
@@ -173,6 +227,10 @@ headless harness: extract the `<script>` contents, stub the DOM, and call
 `test/planner.test.js` does this. Run it from the repo root with
 `node test/planner.test.js`. It finds `index.html` or `meal-planner.html`
 automatically, or takes a path as its first argument. `WEEKS=20000` for a longer run.
+
+The static-data checks are the cheap ones and they catch the expensive mistakes:
+a meal eating rice without declaring the base, a prep item with no `storage`, a
+base with exactly one dinner.
 
 Run it after any change to generation or prep scheduling. Averages over 1000+ weeks
 catch things that eyeballing one generated week never will — the oats bug, the

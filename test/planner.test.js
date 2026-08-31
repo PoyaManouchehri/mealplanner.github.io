@@ -60,7 +60,7 @@ function loadApp() {
   const api = {};
   const exportNames = ['MEALS', 'PREP', 'KINDY', 'TARGETS', 'DAILY', 'DAYS', 'SLOTS',
                        'buildWeek', 'prepPlan', 'byId', 'pool', 'cal', 'pro',
-                       'encodeState', 'decodeState'];
+                       'basesOf', 'mainBases', 'STAPLES', 'encodeState', 'decodeState'];
   eval(src + '\n'
      + exportNames.map(n => `try{api.${n}=${n}}catch(e){}`).join(';')
      + ';api.setState = s => { state = s; };');
@@ -74,10 +74,18 @@ function check(name, ok, detail) {
   else { failures++; console.log(`  \u2717 ${name}${detail ? ' \u2014 ' + detail : ''}`); }
 }
 const avg = a => Math.round(a.reduce((x, y) => x + y, 0) / a.length);
+/* Math.min(...arr) blows the stack past ~100k samples, which is exactly what
+   WEEKS=20000 produces. Reduce instead. */
+const min = a => a.reduce((x, y) => y < x ? y : x, Infinity);
+const max = a => a.reduce((x, y) => y > x ? y : x, -Infinity);
 
 /* ---------- run ---------- */
 const app = loadApp();
-const { MEALS, PREP, TARGETS, DAILY, DAYS, buildWeek, prepPlan, byId, pool, cal, pro } = app;
+const { MEALS, PREP, TARGETS, DAILY, DAYS, buildWeek, prepPlan, byId, pool, cal, pro,
+        basesOf, mainBases, STAPLES } = app;
+
+/* Which session covers a base for a given day, mirroring buildWeek. Day 0 is Monday. */
+const sessionOf = (base, dayIdx) => (dayIdx + 1) <= (PREP[base].keeps || 4) ? 'sun' : 'mid';
 
 console.log(`\n${path.basename(HTML)} \u2014 ${MEALS.length} meals, ${Object.keys(PREP).length} prep items, ${WEEKS} simulated weeks\n`);
 
@@ -86,8 +94,20 @@ console.log('data integrity');
 const noPortions = MEALS.filter(m => !m.portions || !m.portions.length).map(m => m.id);
 check('every meal has portions', noPortions.length === 0, noPortions.join(', '));
 
-const badBase = MEALS.filter(m => m.base && !PREP[m.base]).map(m => m.id);
+const declared = m => m.base ? (Array.isArray(m.base) ? m.base : [m.base]) : [];
+const badBase = MEALS.filter(m => declared(m).some(b => !PREP[b])).map(m => m.id);
 check('every meal base exists in PREP', badBase.length === 0, badBase.join(', '));
+
+const noStorage = Object.keys(PREP).filter(k => !['fridge', 'freezer'].includes(PREP[k].storage));
+check('every prep item says where it is stored', noStorage.length === 0, noStorage.join(', '));
+
+/* Cooked rice is a prep item now. A meal that eats rice has to say so, or the rice
+   never gets cooked and the meal quietly assumes leftovers that do not exist.
+   Rice cakes, rice noodles and rice vinegar are not rice. */
+const eatsRice = m => m.portions.some(x =>
+  /\brice\b/i.test(x.n) && !/rice cake|rice noodle|rice vinegar/i.test(x.n));
+const riceless = MEALS.filter(m => eatsRice(m) && !declared(m).includes('rice')).map(m => m.id);
+check('every meal that eats rice depends on the rice prep', riceless.length === 0, riceless.join(', '));
 
 const noKeeps = Object.keys(PREP).filter(k => !PREP[k].keeps);
 check('every prep item declares a shelf life', noKeeps.length === 0, noKeeps.join(', '));
@@ -96,13 +116,40 @@ const CATS = ['Meat & fish', 'Fruit & veg', 'Dairy & eggs', 'Bakery', 'Frozen', 
 const badCat = [];
 MEALS.forEach(m => (m.buy || []).forEach(b => { if (!CATS.includes(b.c)) badCat.push(`${m.id}:${b.c}`); }));
 Object.entries(PREP).forEach(([k, p]) => (p.buy || []).forEach(b => { if (!CATS.includes(b.c)) badCat.push(`${k}:${b.c}`); }));
+STAPLES.forEach(b => { if (!CATS.includes(b.c)) badCat.push(`STAPLES:${b.c}`); });
 check('shopping categories are all valid', badCat.length === 0, badCat.join(', '));
+
+/* One type of each staple. Two kinds of the same thing is one of them going off in
+   the door of the fridge, so the shopping list may only ever name one milk, one
+   rice and one bag of berries. Coconut milk, rice cakes and rice noodles are
+   different groceries, not variants. */
+const allBuys = [
+  ...MEALS.flatMap(m => m.buy || []),
+  ...Object.values(PREP).flatMap(p => p.buy || []),
+  ...STAPLES
+].map(b => b.n);
+const ONE_OF = [
+  { label: 'milk',    re: /milk/i,                  skip: /coconut/i },
+  { label: 'rice',    re: /\brice\b/i,             skip: /cake|noodle|vinegar/i },
+  { label: 'berries', re: /berr|blueberr|raspberr/i }
+];
+const manyTypes = ONE_OF
+  .map(g => [g.label, [...new Set(allBuys.filter(n => g.re.test(n) && !(g.skip && g.skip.test(n))))]])
+  .filter(([, names]) => names.length > 1);
+check('only one type of milk, rice and berries on the shopping list',
+      manyTypes.length === 0, manyTypes.map(([l, n]) => `${l}: ${n.join(' / ')}`).join('; '));
+
+/* The one milk is full cream, because that is what the daily coffee needs. */
+const wrongMilk = MEALS.filter(m => m.portions.some(x => /skim|low.fat|light milk/i.test(x.n))).map(m => m.id);
+check('no meal asks for a milk other than full cream', wrongMilk.length === 0, wrongMilk.join(', '));
 
 const budgetSum = SLOT_KEYS.reduce((s, k) => s + TARGETS[k], 0);
 check(`slot budgets sum to ${DAILY.cal}`, budgetSum === DAILY.cal, `got ${budgetSum}`);
 
+/* Staples are exempt: rice backs half the dinners and does not cluster the week. */
 const thinBases = Object.keys(PREP).filter(b => {
-  const n = pool('dinner').filter(d => d.base === b).length;
+  if (PREP[b].staple) return false;
+  const n = pool('dinner').filter(d => declared(d).includes(b)).length;
   return n === 1;
 });
 check('each prep base backs 0 or 2+ dinners', thinBases.length === 0,
@@ -111,7 +158,8 @@ check('each prep base backs 0 or 2+ dinners', thinBases.length === 0,
 /* --- generated weeks --- */
 console.log('\ngenerated weeks');
 let slotMismatch = 0, oatsAdjacent = 0, oatsWeekend = 0, breakfastRunOf3 = 0,
-    lunchRepeat = 0, shelfViolations = 0, emptySlots = 0;
+    lunchRepeat = 0, shelfViolations = 0, emptySlots = 0, uncoveredLunch = 0,
+    proteinlessLunch = 0, freezerMidweek = 0;
 const dupeCooks = {};
 const sunMins = [], midMins = [], dayCal = [], dayPro = [];
 
@@ -143,6 +191,22 @@ for (let i = 0; i < WEEKS; i++) {
   const l = days.map(d => d.lunch);
   for (let j = 1; j < 7; j++) if (l[j] === l[j - 1] && l[j] !== 'l-reheat') lunchRepeat++;
 
+  /* A lunch may only lean on a batch that some other meal is already cooking in the
+     same session, otherwise it forces a second cook of the same thing. And the three
+     "any cooked protein" lunches need an actual protein batch in the fridge that day. */
+  const cover = {};
+  days.forEach((d, j) => SLOT_KEYS.filter(k => k !== 'lunch').forEach(k => {
+    mainBases(byId(d[k])).forEach(b => (cover[b] = cover[b] || new Set()).add(sessionOf(b, j)));
+  }));
+  days.forEach((d, j) => {
+    const m = byId(d.lunch);
+    mainBases(m).forEach(b => { if (!cover[b] || !cover[b].has(sessionOf(b, j))) uncoveredLunch++; });
+    if (m.leftoverProtein) {
+      const ready = Object.keys(cover).some(b => PREP[b].protein && cover[b].has(sessionOf(b, j)));
+      if (!ready) proteinlessLunch++;
+    }
+  });
+
   const plan = prepPlan();
   sunMins.push(plan.sundayMins); midMins.push(plan.midweekMins);
 
@@ -150,6 +214,9 @@ for (let i = 0; i < WEEKS; i++) {
   plan.midweek.forEach(x => (x.days || []).forEach(d => {
     if (d - 3 > x.keeps && !(x.late || []).includes(d)) shelfViolations++;
   }));
+
+  /* Freezer items keep for weeks, so they should never need a Wednesday session. */
+  plan.midweek.forEach(x => { if (PREP[x.id].storage === 'freezer') freezerMidweek++; });
 
   const inSun = new Set(plan.sunday.map(x => x.id));
   plan.midweek.forEach(x => { if (inSun.has(x.id)) dupeCooks[x.id] = (dupeCooks[x.id] || 0) + 1; });
@@ -162,17 +229,23 @@ check('oats never on a weekend', oatsWeekend === 0, `${oatsWeekend} occurrences`
 check('no breakfast three days running', breakfastRunOf3 === 0, `${breakfastRunOf3} occurrences`);
 check('no lunch repeated back to back', lunchRepeat === 0, `${lunchRepeat} occurrences`);
 check('nothing prepped past its shelf life', shelfViolations === 0, `${shelfViolations} violations`);
+check('no lunch forces its own extra cook', uncoveredLunch === 0, `${uncoveredLunch} uncovered`);
+check('leftover-protein lunches always have a protein batch that day',
+      proteinlessLunch === 0, `${proteinlessLunch} occurrences`);
+check('nothing frozen lands in the Wednesday top-up', freezerMidweek === 0, `${freezerMidweek} occurrences`);
 
-/* Only assembly items and the 2-day marinade may appear in both sessions. */
-const ALLOWED_DUPES = ['oats', 'crunch-box', 'joojeh'];
+/* Only assembly items, the 2-day marinade and rice may appear in both sessions.
+   Rice is the one real cook that repeats: it keeps four days, so a week needs two
+   batches no matter how the meals fall. */
+const ALLOWED_DUPES = ['oats', 'crunch-box', 'joojeh', 'rice'];
 const badDupes = Object.keys(dupeCooks).filter(k => !ALLOWED_DUPES.includes(k));
 check('no batch protein cooked twice in a week', badDupes.length === 0,
       badDupes.map(k => `${k} \u00d7${dupeCooks[k]}`).join(', '));
 
 /* --- budgets --- */
 console.log('\nbudgets (informational, not pass/fail)');
-console.log(`  daily calories  avg ${avg(dayCal)}  (target ${DAILY.cal}, range ${Math.min(...dayCal)}\u2013${Math.max(...dayCal)})`);
-console.log(`  daily protein   avg ${avg(dayPro)}g (target ${DAILY.protein}g, min ${Math.min(...dayPro)}g)`);
+console.log(`  daily calories  avg ${avg(dayCal)}  (target ${DAILY.cal}, range ${min(dayCal)}\u2013${max(dayCal)})`);
+console.log(`  daily protein   avg ${avg(dayPro)}g (target ${DAILY.protein}g, min ${min(dayPro)}g)`);
 console.log(`  Sunday prep     avg ${avg(sunMins)} min`);
 console.log(`  Wednesday prep  avg ${avg(midMins)} min`);
 console.log(`  total prep      avg ${avg(sunMins) + avg(midMins)} min`);
